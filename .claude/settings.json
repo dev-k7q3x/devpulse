@@ -1,5 +1,19 @@
 {
   "enabledPlugins": {
     "devpulse-kit@devpulse-tools": true
+  },
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/*.pfx)",
+      "Edit(**/appsettings.Production.json)",
+      "Write(**/appsettings.Production.json)",
+      "Bash(git push --force*)",
+      "Bash(dotnet ef migrations remove*)",
+      "Bash(dotnet ef database drop*)"
+    ]
   }
 }
