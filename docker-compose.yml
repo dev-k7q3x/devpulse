@@ -1,0 +1,21 @@
+# Lokalny PostgreSQL do developmentu. Dane logowania wyłącznie dev-only (te same co w appsettings.Development.json).
+services:
+  postgres:
+    image: postgres:17
+    container_name: devpulse-postgres
+    environment:
+      POSTGRES_DB: devpulse
+      POSTGRES_USER: devpulse
+      POSTGRES_PASSWORD: devpulse
+    ports:
+      - "5432:5432"
+    volumes:
+      - devpulse-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devpulse -d devpulse"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  devpulse-pgdata:
