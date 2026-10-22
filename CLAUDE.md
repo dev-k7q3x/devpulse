@@ -276,3 +276,9 @@ Klucze Data Protection w tabeli data_protection_keys, chronione certyfikatem PFX
 *.user, *.suo, .vs/
 .env, .env.local (odczyt zablokowany regułą deny)
 /claude-sessions (zaakceptowane plany – dokumentacja, nie kod; czytaj tylko pod konkretne zadanie)
+
+## Praca autonomiczna (dopisane do CLAUDE.md)
+- Nie commituj – commity robi człowiek po review
+- Nie modyfikuj Program.cs – potrzebne rejestracje DI zapisz w docs/di/[moduł].md
+- Niejednoznaczności zapisuj w docs/questions.md (pytanie + Twoja decyzja) i kontynuuj
+- Kontrolery używają wyłącznie interfejsów z Application – nigdy typów z Infrastructure

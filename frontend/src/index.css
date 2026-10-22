@@ -1,0 +1,60 @@
+:root {
+  --text: #1f1d24;
+  --muted: #6b6375;
+  --bg: #fff;
+  --border: #e5e4e7;
+  --accent: #5b3bff;
+
+  font:
+    16px/1.5 system-ui,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #f3f2f5;
+    --muted: #9c95a6;
+    --bg: #16171d;
+    --border: #2e303a;
+    --accent: #a48bff;
+  }
+}
+
+body {
+  margin: 0;
+}
+
+.app-header {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.app-brand {
+  font-weight: 700;
+}
+
+.app-header nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.app-header a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.app-header a.active {
+  color: var(--accent);
+}
+
+.app-main {
+  padding: 1.5rem;
+}

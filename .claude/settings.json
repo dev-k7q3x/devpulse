@@ -1,19 +1,21 @@
 {
-  "enabledPlugins": {
-    "devpulse-kit@devpulse-tools": true
-  },
   "permissions": {
+    "allow": [
+      "Bash(dotnet build *)",
+      "Bash(dotnet test *)",
+      "Bash(npm run lint)",
+      "Bash(npm test *)"
+    ],
+    "ask": [
+      "Bash(git push *)"
+    ],
     "deny": [
       "Read(./.env)",
       "Read(./.env.*)",
-      "Read(**/.env)",
-      "Read(**/.env.*)",
-      "Read(**/*.pfx)",
-      "Edit(**/appsettings.Production.json)",
-      "Write(**/appsettings.Production.json)",
-      "Bash(git push --force*)",
-      "Bash(dotnet ef migrations remove*)",
-      "Bash(dotnet ef database drop*)"
+      "Bash(git push --force *)"
     ]
+  },
+  "enabledPlugins": {
+    "devpulse-kit@devpulse-tools": true
   }
 }
