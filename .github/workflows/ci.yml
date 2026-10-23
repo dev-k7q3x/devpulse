@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (build + Unit + Integration)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - run: dotnet restore src/DevPulse.sln
+      - run: dotnet build src/DevPulse.sln --no-restore -c Release
+      - run: dotnet format src/DevPulse.sln --verify-no-changes --no-restore
+      - name: Unit
+        run: dotnet test tests/DevPulse.Tests --no-build -c Release --filter Category=Unit
+      # Testcontainers korzysta z Dockera dostępnego na runnerze ubuntu. Category=External nigdy w CI.
+      - name: Integration
+        run: dotnet test tests/DevPulse.Tests --no-build -c Release --filter Category=Integration
+
+  frontend:
+    name: Frontend (lint + type-check + test + build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run type-check
+      - run: npm test
+      - run: npm run build
+
+  docker:
+    name: Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: docker build -t devpulse:ci .
