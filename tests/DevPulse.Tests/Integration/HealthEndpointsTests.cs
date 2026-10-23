@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
 using DevPulse.Application.Errors;
@@ -25,13 +26,25 @@ public class HealthEndpointsTests(DevPulseApiFactory factory)
     }
 
     [Fact]
-    public async Task Should_Return200Healthy_When_DatabaseIsReachable()
+    public async Task Should_Return200Healthy_When_DatabaseAndHangfireServerAreReady()
     {
-        // Arrange
+        // Arrange – serwer Hangfire rejestruje pierwszy heartbeat chwilę po starcie hosta
         using var client = factory.CreateClient();
+        var waited = Stopwatch.StartNew();
+        HttpResponseMessage response;
 
         // Act
-        var response = await client.GetAsync("/health/ready");
+        do
+        {
+            response = await client.GetAsync("/health/ready");
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                break;
+            }
+
+            await Task.Delay(TimeSpan.FromMilliseconds(500));
+        }
+        while (waited.Elapsed < TimeSpan.FromSeconds(30));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);

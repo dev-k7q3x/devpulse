@@ -63,7 +63,7 @@ src/
   DevPulse.Api/            ← Controllers, Auth (cookie + GitHub OAuth), Program.cs (DI, Hangfire,
                              OpenAPI, health checks, rate limiter, SPA fallback), wwwroot (build SPA)
   DevPulse.Application/    ← Interfaces, DTOs, Validators (FluentValidation),
-                             Digest/ (czysta logika digestu + fallback regułowy)
+                             Digests/ (czysta logika digestu + fallback regułowy)
   DevPulse.Domain/         ← Encje, value objects, enums – zero zależności
   DevPulse.Infrastructure/ ← Persistence (EF Core), GitHub (GraphQL + REST), Ai (Anthropic),
                              Email (SendGrid), Jobs (Hangfire), Security (Data Protection),

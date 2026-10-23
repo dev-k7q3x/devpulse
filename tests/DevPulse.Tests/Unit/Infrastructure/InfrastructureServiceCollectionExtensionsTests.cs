@@ -1,7 +1,13 @@
 using DevPulse.Application.Diagnostics;
+using DevPulse.Application.DTOs.Auth;
+using DevPulse.Application.DTOs.Repositories;
+using DevPulse.Application.DTOs.Settings;
+using DevPulse.Application.Interfaces;
+using DevPulse.Application.Options;
 using DevPulse.Infrastructure.DependencyInjection;
 using DevPulse.Infrastructure.Persistence;
 using FluentAssertions;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +34,22 @@ public class InfrastructureServiceCollectionExtensionsTests
         // Assert
         var registrations = provider.GetRequiredService<IOptions<HealthCheckServiceOptions>>().Value.Registrations;
         registrations.Should().ContainSingle(r => r.Name == "postgresql")
+            .Which.Tags.Should().Contain(HealthCheckTags.Ready);
+    }
+
+    [Fact]
+    public void Should_RegisterHangfireHealthCheckWithReadyTag_When_InfrastructureAdded()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+
+        // Act
+        services.AddInfrastructure(BuildConfiguration(ConnectionString));
+        using var provider = services.BuildServiceProvider();
+
+        // Assert
+        var registrations = provider.GetRequiredService<IOptions<HealthCheckServiceOptions>>().Value.Registrations;
+        registrations.Should().ContainSingle(r => r.Name == "hangfire")
             .Which.Tags.Should().Contain(HealthCheckTags.Ready);
     }
 
@@ -61,6 +83,73 @@ public class InfrastructureServiceCollectionExtensionsTests
         // Assert – /health (liveness) nie może zależeć od żadnego checka zależności
         var registrations = provider.GetRequiredService<IOptions<HealthCheckServiceOptions>>().Value.Registrations;
         registrations.Should().OnlyContain(r => r.Tags.Contains(HealthCheckTags.Ready));
+    }
+
+    [Fact]
+    public void Should_ResolveApplicationDbContextAsSameScopedInstance_When_InfrastructureAdded()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddInfrastructure(BuildConfiguration(ConnectionString));
+        using var provider = services.BuildServiceProvider();
+        using var scope = provider.CreateScope();
+
+        // Act
+        var applicationContext = scope.ServiceProvider.GetRequiredService<IDevPulseDbContext>();
+
+        // Assert
+        applicationContext.Should().BeSameAs(scope.ServiceProvider.GetRequiredService<DevPulseDbContext>());
+        provider.GetService<IDbContextFactory<DevPulseDbContext>>().Should().NotBeNull();
+    }
+
+    [Theory]
+    [InlineData(typeof(IValidator<AuthLoginRequest>))]
+    [InlineData(typeof(IValidator<AvailableRepositoriesRequest>))]
+    [InlineData(typeof(IValidator<RepositoryAddRequest>))]
+    [InlineData(typeof(IValidator<SettingsUpdateRequest>))]
+    [InlineData(typeof(IValidator<EmailChangeRequest>))]
+    [InlineData(typeof(IValidator<EmailConfirmRequest>))]
+    public void Should_RegisterValidator_When_InfrastructureAdded(Type validatorType)
+    {
+        // Arrange – walidator bez rejestracji w DI po cichu nie działa (znana pułapka z CLAUDE.md)
+        var services = new ServiceCollection();
+        services.AddInfrastructure(BuildConfiguration(ConnectionString));
+        using var provider = services.BuildServiceProvider();
+
+        // Act
+        var validator = provider.GetService(validatorType);
+
+        // Assert
+        validator.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Should_BindLimitsFromConfiguration_When_InfrastructureAdded()
+    {
+        // Arrange
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:Default"] = ConnectionString,
+                ["Repositories:MaxPerUser"] = "10",
+                ["Snapshot:RefreshInterval"] = "00:05:00",
+                ["Admin:Logins:0"] = "octocat",
+            })
+            .Build();
+        var services = new ServiceCollection();
+        services.AddInfrastructure(configuration);
+        using var provider = services.BuildServiceProvider();
+
+        // Act
+        var repositories = provider.GetRequiredService<IOptions<RepositoriesOptions>>().Value;
+        var snapshot = provider.GetRequiredService<IOptions<SnapshotOptions>>().Value;
+        var admin = provider.GetRequiredService<IOptions<AdminOptions>>().Value;
+
+        // Assert
+        repositories.MaxPerUser.Should().Be(10);
+        snapshot.RefreshInterval.Should().Be(TimeSpan.FromMinutes(5));
+        snapshot.StaleAfter.Should().Be(TimeSpan.FromHours(1));
+        admin.Logins.Should().Equal("octocat");
     }
 
     [Theory]

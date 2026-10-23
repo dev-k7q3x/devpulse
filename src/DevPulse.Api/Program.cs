@@ -1,4 +1,7 @@
 using System.Text.Json.Serialization;
+using DevPulse.Api.Errors;
+using DevPulse.Api.RateLimiting;
+using DevPulse.Api.Validation;
 using DevPulse.Application.Diagnostics;
 using DevPulse.Application.Errors;
 using DevPulse.Infrastructure.DependencyInjection;
@@ -23,13 +26,19 @@ builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = 
         problem.Type = slug;
     }
 });
+builder.Services.AddExceptionHandler<DevPulseExceptionHandler>();
 builder.Services.AddSingleton(TimeProvider.System);
 
-builder.Services.AddControllers()
+builder.Services.AddControllers(options =>
+    {
+        options.Filters.Add<ValidationFilter>();
+        options.Conventions.Add(new DefaultRateLimitingConvention());
+    })
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddOpenApi();
+builder.Services.AddDevPulseRateLimiting(builder.Configuration);
 
 // Composition root: referencja Api → Infrastructure istnieje WYŁĄCZNIE dla rejestracji DI.
 // Kontrolery i reszta Api używają tylko interfejsów z DevPulse.Application – nigdy typów z Infrastructure.
@@ -49,13 +58,17 @@ if (app.Environment.IsDevelopment())
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
+app.UseRouting();
+// Uwierzytelnianie (UseAuthentication/UseAuthorization) musi stać przed UseRateLimiter – partycje liczone per userId.
+app.UseRateLimiter();
+
 app.MapControllers();
 
 // Liveness dla healthchecka Railway: żaden check zależności – awaria bazy nie restartuje kontenera.
 var livenessOptions = new HealthCheckOptions { Predicate = _ => false };
 app.MapHealthChecks("/health", livenessOptions).AllowAnonymous();
 
-// Readiness: PostgreSQL (później także Hangfire). Odpowiedź tylko Healthy/Unhealthy, bez szczegółów.
+// Readiness: PostgreSQL i serwer Hangfire. Odpowiedź tylko Healthy/Unhealthy, bez szczegółów.
 var readinessOptions = new HealthCheckOptions { Predicate = check => check.Tags.Contains(HealthCheckTags.Ready) };
 app.MapHealthChecks("/health/ready", readinessOptions).AllowAnonymous();
 
