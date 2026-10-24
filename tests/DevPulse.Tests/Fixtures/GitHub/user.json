@@ -1,0 +1,10 @@
+{
+  "login": "fixture-octocat",
+  "id": 987654321,
+  "node_id": "MDQ6VXNlcjk4NzY1NDMyMQ==",
+  "avatar_url": "https://avatars.githubusercontent.com/u/987654321?v=4",
+  "html_url": "https://github.com/fixture-octocat",
+  "type": "User",
+  "name": "Fixture Octocat",
+  "email": null
+}

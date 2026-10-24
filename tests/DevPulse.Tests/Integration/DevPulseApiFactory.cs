@@ -41,9 +41,14 @@ public sealed class DevPulseApiFactory : WebApplicationFactory<Program>, IAsyncL
             .UseSnakeCaseNamingConvention()
             .Options);
 
+    /// <summary>Login GitHub z <c>Admin:Logins</c> w testach.</summary>
+    public const string AdminLogin = "devpulse-admin";
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseSetting("ConnectionStrings:Default", _postgres.GetConnectionString());
+        builder.UseTestAuthSettings();
+        builder.UseSetting("Admin:Logins:0", AdminLogin);
 
         // Endpointy testowe do sprawdzania wspólnego potoku (walidacja, mapowanie błędów, rate limiting).
         builder.ConfigureTestServices(services =>

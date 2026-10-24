@@ -1,0 +1,15 @@
+# Repozytorium i CI używają LF – bez tego core.autocrlf=true na Windows daje CRLF i lokalny prettier --check zgłasza błędy.
+* text=auto eol=lf
+
+# Skrypty Windows zostają z CRLF.
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Binaria
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.pfx binary

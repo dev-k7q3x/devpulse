@@ -70,10 +70,17 @@ public sealed class User
             throw new ArgumentException($"Login GitHuba ma maksymalnie {LoginMaxLength} znaków.", nameof(login));
         }
 
+        // Bez obcinania – ucięta lista dałaby fałszywe missingScopes. OAuth App przyznaje najwyżej żądane scopes,
+        // więc przekroczenie limitu oznacza błąd w kodzie, nie dane od użytkownika.
+        if (tokenScopes.Length > TokenScopesMaxLength)
+        {
+            throw new ArgumentException($"Lista scopes ma maksymalnie {TokenScopesMaxLength} znaków.", nameof(tokenScopes));
+        }
+
         Login = login;
         AvatarUrl = Guard.Truncate(avatarUrl, AvatarUrlMaxLength);
         AccessTokenEncrypted = accessTokenEncrypted;
-        TokenScopes = Guard.Truncate(tokenScopes, TokenScopesMaxLength) ?? string.Empty;
+        TokenScopes = tokenScopes;
         TokenInvalid = false;
         TokenUpdatedAt = now;
         LastLoginAt = now;

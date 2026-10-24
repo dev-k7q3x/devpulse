@@ -1,3 +1,4 @@
+using DevPulse.Tests.Integration.TestSupport;
 using FluentAssertions;
 using Hangfire;
 using Microsoft.AspNetCore.Hosting;
@@ -17,6 +18,7 @@ public sealed class UnreachableDatabaseApiFactory : WebApplicationFactory<Progra
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseSetting("ConnectionStrings:Default", UnreachableConnectionString);
+        builder.UseTestAuthSettings();
 
         // Serwer Hangfire bez bazy ponawia połączenie w nieskończoność i blokuje zamknięcie hosta na minuty.
         // Health check Hangfire nadal odpytuje storage, więc /health/ready i tak zgłasza Unhealthy.
