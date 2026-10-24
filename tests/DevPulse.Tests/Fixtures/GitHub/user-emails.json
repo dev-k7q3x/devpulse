@@ -1,0 +1,14 @@
+[
+  {
+    "email": "secondary@example.com",
+    "primary": false,
+    "verified": true,
+    "visibility": null
+  },
+  {
+    "email": "fixture-octocat@example.com",
+    "primary": true,
+    "verified": true,
+    "visibility": "private"
+  }
+]

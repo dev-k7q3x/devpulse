@@ -30,11 +30,13 @@ Zaakceptowane plany (czytaj tylko plik dotyczący bieżącego obszaru):
 - Integracyjne: `dotnet test ./tests/DevPulse.Tests --filter Category=Integration`
   (wymagają Dockera – Testcontainers PostgreSQL)
 - Wszystkie: `dotnet test ./tests/DevPulse.Tests`
-- Run: `dotnet run --project ./src/DevPulse.Api`   (lokalnie także /hangfire i /openapi/v1.json)
+- Run: `dotnet run --project ./src/DevPulse.Api`   (lokalnie także /openapi/v1.json; /hangfire od etapu 6)
+  (wymaga user-secrets `Auth:GitHub:ClientId` i `Auth:GitHub:ClientSecret` – bez nich start kończy się błędem; docs/deploy/railway.md)
 - Nowa migracja: `dotnet ef migrations add [Nazwa] --project ./src/DevPulse.Infrastructure --startup-project ./src/DevPulse.Api`
   (preferuj `/devpulse-kit:new-migration [Nazwa]`)
 - Aplikacja migracji: `dotnet ef database update --project ./src/DevPulse.Infrastructure --startup-project ./src/DevPulse.Api`
 - Migration bundle (pre-deploy na Railway): `dotnet ef migrations bundle --project ./src/DevPulse.Infrastructure --startup-project ./src/DevPulse.Api`
+  (budowany w Dockerfile jako /app/efbundle; narzędzia EF używają DevPulseDbContextDesignTimeFactory, nie hosta API)
 
 ### Frontend
 - Dev: `cd frontend && npm run dev`          (port 5173, proxy /api → backend)
@@ -46,7 +48,7 @@ Zaakceptowane plany (czytaj tylko plik dotyczący bieżącego obszaru):
 ### Środowisko
 - Start: `docker compose up -d`   (lokalny PostgreSQL:5432)
 - Stop: `docker compose down`
-- Obraz produkcyjny: `docker build .`   (multi-stage: node build → dotnet publish → runtime)
+- Obraz produkcyjny: `docker build .`   (multi-stage: node build → dotnet publish + efbundle → runtime; deploy: railway.json)
 
 ### Skille devpulse-kit
 - `/devpulse-kit:new-endpoint [METHOD] [PATH]` – DTO, serwis, kontroler, testy

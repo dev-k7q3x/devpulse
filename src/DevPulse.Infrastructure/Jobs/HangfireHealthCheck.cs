@@ -12,6 +12,7 @@ internal sealed class HangfireHealthCheck(JobStorage storage, TimeProvider timeP
     public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
         var now = timeProvider.GetUtcNow().UtcDateTime;
+        // Świadomy wyjątek od reguły async: monitoring API Hangfire nie ma wersji asynchronicznej.
         var servers = storage.GetMonitoringApi().Servers();
         var hasAliveServer = servers.Any(server => server.Heartbeat is { } heartbeat && now - heartbeat <= MaxHeartbeatAge);
 

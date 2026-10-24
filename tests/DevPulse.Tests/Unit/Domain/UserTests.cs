@@ -50,6 +50,20 @@ public class UserTests
     }
 
     [Fact]
+    public void Should_Throw_When_TokenScopesLongerThanLimit()
+    {
+        // Arrange – obcięta lista scopes dałaby fałszywe missingScopes
+        var user = new UserBuilder().Build();
+        var tooLongScopes = new string('s', User.TokenScopesMaxLength + 1);
+
+        // Act
+        var act = () => user.RecordLogin("octocat", null, "encrypted", tooLongScopes, TestClock.Now);
+
+        // Assert
+        act.Should().Throw<ArgumentException>().WithParameterName("tokenScopes");
+    }
+
+    [Fact]
     public void Should_ReplaceTokenAndClearInvalidFlag_When_LoginRecorded()
     {
         // Arrange

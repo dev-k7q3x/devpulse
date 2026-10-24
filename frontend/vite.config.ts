@@ -18,6 +18,8 @@ export default defineConfig({
     proxy: {
       '/api': apiTarget,
       '/health': apiTarget,
+      // Callback GitHub OAuth – Host zostaje localhost:5173, więc redirect_uri wskazuje na serwer Vite.
+      '/signin-github': apiTarget,
     },
   },
   test: {

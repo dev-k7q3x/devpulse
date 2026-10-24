@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using DevPulse.Api.RateLimiting;
 using DevPulse.Application.Errors;
+using DevPulse.Tests.Integration.TestSupport;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -19,7 +20,7 @@ public class ApiPipelineTests(DevPulseApiFactory factory)
     public async Task Should_Return400ValidationWithContractFieldName_When_RequestInvalid()
     {
         // Arrange
-        using var client = factory.CreateClient();
+        using var client = await factory.CreateSignedInClientAsync(Guid.CreateVersion7());
 
         // Act
         var response = await client.PostAsJsonAsync("/api/__test/validated", new { githubRepoId = 0 });
@@ -36,7 +37,7 @@ public class ApiPipelineTests(DevPulseApiFactory factory)
     public async Task Should_ReachAction_When_RequestValid()
     {
         // Arrange
-        using var client = factory.CreateClient();
+        using var client = await factory.CreateSignedInClientAsync(Guid.CreateVersion7());
 
         // Act
         var response = await client.PostAsJsonAsync("/api/__test/validated", new { githubRepoId = 1296269 });
