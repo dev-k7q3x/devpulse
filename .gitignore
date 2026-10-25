@@ -18,3 +18,4 @@ src/DevPulse.Api/wwwroot/
 
 # Claude Code – lokalne ustawienia
 .claude/settings.local.json
+.claude/worktrees/

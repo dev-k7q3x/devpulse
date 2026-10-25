@@ -1,0 +1,5 @@
+root = true
+
+# Repozytorium i CI używają LF (.gitattributes). Bez tego dotnet format na Windows oczekuje CRLF w części trivia.
+[*]
+end_of_line = lf
