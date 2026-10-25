@@ -1,3 +1,29 @@
+import { formatDateTime } from '@/lib/dateTime'
+import { EmailSection } from './EmailSection'
+import { ScheduleForm } from './ScheduleForm'
+import { useSettings } from './useSettings'
+
 export function SettingsPage() {
-  return <h1>Ustawienia</h1>
+  const { data: settings, isPending, isError } = useSettings()
+
+  return (
+    <>
+      <h1>Ustawienia</h1>
+      {isPending && <p role="status">Ładowanie…</p>}
+      {isError && (
+        <p role="alert">Nie udało się wczytać ustawień. Odśwież stronę.</p>
+      )}
+      {settings && (
+        <>
+          <p className="next-digest">
+            {settings.nextDigestAt
+              ? `Następny digest: ${formatDateTime(settings.nextDigestAt, settings.timeZoneId)} (${settings.timeZoneId})`
+              : 'Digest nie jest zaplanowany.'}
+          </p>
+          <ScheduleForm settings={settings} />
+          <EmailSection settings={settings} />
+        </>
+      )}
+    </>
+  )
 }

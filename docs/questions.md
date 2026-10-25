@@ -49,3 +49,18 @@ Format: pytanie → decyzja. Pozycje z etapu 2 zatwierdzone przez użytkownika 2
 
 14. **Certyfikat Data Protection.**
     → Wygenerowany lokalnie (RSA 3072, ważny 10 lat) w katalogu `.devpulse` w profilu użytkownika, poza repo (`*.pfx` jest też w `.dockerignore`). Do przeniesienia do menedżera haseł.
+
+## 2026-10-25 · Etap 3 – ścieżki równoległe E3A, E3B, E3C
+
+Pełne listy decyzji z uzasadnieniem: `docs/progress/E3A.md`, `E3B.md`, `E3C.md`. Najważniejsze (zatwierdzone przez użytkownika przy scalaniu):
+
+15. **Anthropic i SendGrid przez typed `HttpClient`, bez SDK** – decyzja sesji głównej: bez nowych paczek, testy fake handlerem. Zapytanie do Anthropic sprawdzone z dokumentacją API (Sonnet 5.5: `thinking: between_tools`, `effort: low`, `output_config.format`, `anthropic-version: 2026-10-21`).
+16. **Bez server-side `fallbacks` przy odmowie modelu** – odmowa kończy się fallbackiem regułowym; przełączanie na inny model zwiększałoby koszt AI. Zatwierdzone przez użytkownika.
+17. **Mail potwierdzający adres w E3C (nie E3B)** – mniej zależności między ścieżkami. E3C ma `LoggingEmailSender` (TryAdd, w Production rzuca wyjątek), który po scaleniu E3B zastępuje `SendGridEmailSender`.
+18. **`/confirm-email` potwierdza po kliknięciu przycisku, nie przy wejściu** – skanery linków i podwójny POST w StrictMode.
+19. **`NextDigestCalculator` (E3C) to reguła zmiany czasu dla E5A** – godzina nieistniejąca (wiosna) → pierwszy moment po przeskoku, powtórzona (jesień) liczy się raz.
+20. **E3A – świadomie odłożone:** błąd jednej paczki GraphQL oznacza błędem wszystkie snapshoty użytkownika; limit 50 repo sprawdzany nieatomowo (dwa równoległe POST przy 49 mogą dać 51).
+21. **Bez `IHttpClientFactory` w Infrastructure** (E3A, E3B) – singletonowe `HttpClient` z `SocketsHttpHandler` i odnawianiem połączeń. Do ujednolicenia, jeśli kiedyś dojdzie `Microsoft.Extensions.Http`.
+22. **Readiness przy niedostępnej bazie** – `HangfireHealthCheck` czeka na storage najwyżej 5 s (wcześniej ~88 s). `.editorconfig` z `end_of_line = lf` po wprowadzeniu `.gitattributes`.
+
+**Dla E5A (z raportów ścieżek):** `SendDigestJob` traktuje `InvalidOperationException` z sendera (brak konfiguracji) jako błąd trwały, bez ponawiania; zapisuje stały kod błędu, nie `exception.Message`; pusty `SendGrid:FromEmail` do checklisty pre-deploy.

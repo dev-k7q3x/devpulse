@@ -34,6 +34,8 @@ Auth__GitHub__ClientSecret=<prod client secret>
 DataProtection__CertificateBase64=<zawartość C:\Users\pawel\.devpulse\dataprotection-base64.txt>
 DataProtection__CertificatePassword=<zawartość C:\Users\pawel\.devpulse\dataprotection-password.txt>
 Admin__Logins__0=<twój login GitHub>
+App__PublicBaseUrl=https://<domena>
+# od E5A (digest): ANTHROPIC_API_KEY, SendGrid__ApiKey, SendGrid__FromEmail (zweryfikowana domena nadawcy)
 ```
 - Connection string musi być w formacie Npgsql – nie używaj `DATABASE_URL` (URI). Referencje `${{Postgres.…}}` zakładają, że serwis bazy nazywa się `Postgres`.
 - `PORT` ustawia Railway – nie dodawaj go.

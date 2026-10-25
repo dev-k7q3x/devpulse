@@ -68,8 +68,10 @@ Zapisz Client ID i sekret jako „DevPulse OAuth – dev”.
    DataProtection__CertificateBase64=<zawartość pliku dataprotection-base64.txt>
    DataProtection__CertificatePassword=<zawartość pliku dataprotection-password.txt>
    Admin__Logins__0=<Twój login GitHub, np. pawellukasiewiczkontakt-creator>
+   App__PublicBaseUrl=https://<DOMENA>
    ```
    - Pierwszą linię wklej **dokładnie tak** – `${{Postgres.PGHOST}}` itd. to referencje Railway, same podstawią dane bazy.
+   - `App__PublicBaseUrl` (od etapu 3): adres w linku z maila potwierdzającego zmianę emaila – bez niego link prowadzi na localhost.
    - **Nie** dodawaj `PORT` ani `DATABASE_URL` – Railway ustawia `PORT` sam, a aplikacja wymaga formatu Npgsql, nie URI.
 3. Wartości certyfikatu są w katalogu `C:\Users\pawel\.devpulse\`. Najwygodniej skopiować je do schowka w PowerShell (bez wyświetlania na ekranie):
    ```powershell
