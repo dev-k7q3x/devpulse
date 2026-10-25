@@ -1,0 +1,69 @@
+{
+  "data": {
+    "nodes": [
+      {
+        "id": "MDEwOlJlcG9zaXRvcnkxMjk2MjY5",
+        "name": "Hello-World",
+        "owner": { "login": "octocat" },
+        "url": "https://github.com/octocat/Hello-World",
+        "isPrivate": false,
+        "pushedAt": "2026-10-20T08:15:00Z",
+        "defaultBranchRef": {
+          "name": "main",
+          "target": {
+            "oid": "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d",
+            "statusCheckRollup": { "state": "SUCCESS" }
+          }
+        },
+        "pullRequests": {
+          "totalCount": 14,
+          "nodes": [
+            {
+              "number": 42,
+              "title": "Add digest scheduler",
+              "url": "https://github.com/octocat/Hello-World/pull/42",
+              "isDraft": false,
+              "createdAt": "2026-10-19T09:00:00Z",
+              "author": { "login": "monalisa" }
+            },
+            {
+              "number": 41,
+              "title": "WIP: dark mode",
+              "url": "https://github.com/octocat/Hello-World/pull/41",
+              "isDraft": true,
+              "createdAt": "2026-10-18T09:00:00Z",
+              "author": null
+            }
+          ]
+        },
+        "issues": { "totalCount": 7 }
+      },
+      {
+        "id": "R_kgDOAcme0001",
+        "name": "devpulse-renamed",
+        "owner": { "login": "acme" },
+        "url": "https://github.com/acme/devpulse-renamed",
+        "isPrivate": true,
+        "pushedAt": null,
+        "defaultBranchRef": {
+          "name": "develop",
+          "target": {
+            "oid": "1111111111111111111111111111111111111111",
+            "statusCheckRollup": { "state": "FAILURE" }
+          }
+        },
+        "pullRequests": { "totalCount": 0, "nodes": [] },
+        "issues": { "totalCount": 0 }
+      },
+      null
+    ]
+  },
+  "errors": [
+    {
+      "type": "NOT_FOUND",
+      "path": ["nodes", 2],
+      "locations": [{ "line": 3, "column": 3 }],
+      "message": "Could not resolve to a node with the global id of 'R_kgDOGone0001'"
+    }
+  ]
+}

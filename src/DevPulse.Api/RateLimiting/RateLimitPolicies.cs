@@ -9,7 +9,7 @@ public static class RateLimitPolicies
     /// <summary><c>GET /repositories/available</c> – chybiony cache to N stron <c>GET /user/repos</c>.</summary>
     public const string GitHubRead = "github-read";
 
-    /// <summary><c>available?refresh=true</c> – pominięcie cache zawsze kosztuje limit GitHuba.</summary>
+    /// <summary><c>available?refresh=true</c> – pominięcie cache zawsze kosztuje limit GitHuba. Wybierane w polityce <see cref="GitHubRead"/> po parametrze <c>refresh</c>.</summary>
     public const string GitHubRefresh = "github-refresh";
 
     /// <summary><c>POST</c>/<c>DELETE /repositories</c>.</summary>
