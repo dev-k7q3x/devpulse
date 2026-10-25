@@ -21,7 +21,8 @@ tests/DevPulse.Tests/
 - Encje testowe wyłącznie przez buildery z Builders/ – nie przez `new Encja { … }` w teście
 - Minimum: happy path + jeden przypadek brzegowy na metodę publiczną
 - Każda klasa testowa ma Category; hook Stop uruchamia tylko `--filter Category=Unit`
-- Testy z prawdziwym Anthropic/SendGrid tylko jako [Trait("Category", "External")] (klucze z user-secrets,
+- Testy z prawdziwym Anthropic/SendGrid tylko jako [Trait("Category", "External")] – uruchamiają się wyłącznie
+  ze zmienną `DEVPULSE_RUN_EXTERNAL=1` (inaczej są pomijane) (klucze z user-secrets,
   SendGrid w sandbox mode) – nigdy w CI, uruchamiane tylko na wyraźne polecenie
 
 ## Unit

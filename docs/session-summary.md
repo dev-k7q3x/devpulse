@@ -32,3 +32,11 @@
 - `.gitattributes`, sugestie z review (questions.md, pkt 13), `docs/deploy/railway.md`, CLAUDE.md (user-secrets, efbundle).
 - `/devpulse-kit:devpulse-review`: APPROVE. Wdrożone sugestie: porównanie klucza `/me` po hashu (`hashKey`), `toLocalPath` odrzuca znaki kontrolne, design-time factory rzuca wyjątek bez `ConnectionStrings__Default` w Production, cookie `Secure` zawsze poza Development (+ testy).
 - Testy: backend 198/198, frontend 35/35, lint/type-check/prettier/build i `dotnet format` – zielone. Wszystko w indeksie (`git add -A`), bez commitu.
+
+## 2026-10-25 · Etap 3 – E3A, E3B, E3C (równolegle w worktree, scalone do `main`)
+
+- Trzy ścieżki w osobnych worktree (subagenci), koordynacja i scalanie w sesji głównej. Postęp i decyzje: `docs/progress/E3A.md`, `E3B.md`, `E3C.md`; rejestracje DI: `docs/di/github.md`, `digest.md`, `settings.md`.
+- Incydenty: Docker Desktop padł przy trzech równoległych zestawach Testcontainers (restart w sesji głównej, potem testy integracyjne kolejno przez blokadę `.claude/worktrees/.docker-lock`); limit sesji API przerwał wszystkie ścieżki – wznowione po resecie bez utraty pracy.
+- Weryfikacja po złożeniu (przed merge): backend 390/390 (+2 External pominięte), frontend 47/47, `dotnet format`, lint, type-check, prettier, build; jedyny konflikt – generowany `schema.d.ts` (regenerowany).
+- Merge: PR #4 (readiness timeout + `.editorconfig`), #5 (E3A), #6 (E3B), E3C (ten PR, z regenerowanym `schema.d.ts` i tą dokumentacją).
+- Deploy nadal odłożony (Railway wstrzymał rejestracje); `App__PublicBaseUrl` dopisane do instrukcji deployu.
