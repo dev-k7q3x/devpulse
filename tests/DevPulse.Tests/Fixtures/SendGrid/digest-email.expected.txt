@@ -1,0 +1,13 @@
+DevPulse – digest z dnia 21.10.2026
+
+CO WYMAGA UWAGI DZIŚ
+- [Pilne] acme/api: Napraw nieprzechodzące CI na main – blokuje 4 otwarte PR-y.
+- [Ważne] acme/web: Przejrzyj PR czekający 12 dni na review.
+(priorytety przygotowało AI – Claude)
+
+STAN REPOZYTORIÓW
+- acme/api: PR 4, issue 7, CI Błąd, ostatnia aktywność 21.10.2026
+- acme/docs: PR 0, issue 1, CI Brak, ostatnia aktywność –
+- acme/web: PR 1, issue 0, CI OK, ostatnia aktywność 19.10.2026
+
+Dashboard: https://devpulse.example/

@@ -1,0 +1,9 @@
+{
+  "errors": [
+    {
+      "message": "The from address does not match a verified Sender Identity.",
+      "field": "from",
+      "help": null
+    }
+  ]
+}
