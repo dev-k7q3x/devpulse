@@ -55,15 +55,59 @@ public class HangfireHealthCheckTests
         result.Status.Should().Be(HealthStatus.Unhealthy);
     }
 
+    [Fact]
+    public async Task Should_ReturnUnhealthyWithoutWaitingForHangfire_When_StorageHangs()
+    {
+        // Arrange – Hangfire.PostgreSql bez bazy blokuje wywołanie na ok. 90 s
+        using var release = new ManualResetEventSlim();
+        var monitoringApi = new Mock<IMonitoringApi>();
+        monitoringApi.Setup(api => api.Servers()).Returns(() =>
+        {
+            release.Wait(TimeSpan.FromSeconds(30));
+            return [];
+        });
+        var check = new HangfireHealthCheck(StorageReturning(monitoringApi.Object), _timeProvider);
+
+        // Act
+        var pending = check.CheckHealthAsync(CreateContext());
+        _timeProvider.Advance(HangfireHealthCheck.StorageTimeout);
+        var result = await pending.WaitAsync(TimeSpan.FromSeconds(10));
+        release.Set();
+
+        // Assert
+        result.Status.Should().Be(HealthStatus.Unhealthy);
+        result.Description.Should().Contain("nie odpowiada");
+    }
+
+    [Fact]
+    public async Task Should_ReturnUnhealthy_When_StorageThrows()
+    {
+        // Arrange
+        var monitoringApi = new Mock<IMonitoringApi>();
+        monitoringApi.Setup(api => api.Servers()).Throws(new InvalidOperationException("brak połączenia"));
+        var check = new HangfireHealthCheck(StorageReturning(monitoringApi.Object), _timeProvider);
+
+        // Act
+        var result = await check.CheckHealthAsync(CreateContext());
+
+        // Assert
+        result.Status.Should().Be(HealthStatus.Unhealthy);
+        result.Exception.Should().BeOfType<InvalidOperationException>();
+    }
+
+    private static JobStorage StorageReturning(IMonitoringApi monitoringApi)
+    {
+        var storage = new Mock<JobStorage>();
+        storage.Setup(s => s.GetMonitoringApi()).Returns(monitoringApi);
+        return storage.Object;
+    }
+
     private HangfireHealthCheck CreateCheck(params ServerDto[] servers)
     {
         var monitoringApi = new Mock<IMonitoringApi>();
         monitoringApi.Setup(api => api.Servers()).Returns(servers.ToList());
 
-        var storage = new Mock<JobStorage>();
-        storage.Setup(s => s.GetMonitoringApi()).Returns(monitoringApi.Object);
-
-        return new HangfireHealthCheck(storage.Object, _timeProvider);
+        return new HangfireHealthCheck(StorageReturning(monitoringApi.Object), _timeProvider);
     }
 
     private static HealthCheckContext CreateContext() => new()
