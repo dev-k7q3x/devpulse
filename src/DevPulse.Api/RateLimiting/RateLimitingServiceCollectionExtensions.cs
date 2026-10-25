@@ -33,7 +33,15 @@ internal static class RateLimitingServiceCollectionExtensions
                     QueueLimit = 0,
                 }));
 
-            AddFixedWindowPolicy(options, RateLimitPolicies.GitHubRead, limits.GitHubReadPerMinute, TimeSpan.FromMinutes(1), UserOrIpKey);
+            // Jeden endpoint (available), dwa limity: refresh=true pomija cache i zawsze kosztuje budżet GitHuba,
+            // więc trafia do osobnej, ostrzejszej partycji github-refresh.
+            options.AddPolicy(RateLimitPolicies.GitHubRead, context => IsRefreshRequest(context)
+                ? RateLimitPartition.GetFixedWindowLimiter(
+                    $"{RateLimitPolicies.GitHubRefresh}:{UserOrIpKey(context)}",
+                    _ => FixedWindow(limits.GitHubRefreshPerMinute, TimeSpan.FromMinutes(1)))
+                : RateLimitPartition.GetFixedWindowLimiter(
+                    $"{RateLimitPolicies.GitHubRead}:{UserOrIpKey(context)}",
+                    _ => FixedWindow(limits.GitHubReadPerMinute, TimeSpan.FromMinutes(1))));
             AddFixedWindowPolicy(options, RateLimitPolicies.GitHubRefresh, limits.GitHubRefreshPerMinute, TimeSpan.FromMinutes(1), UserOrIpKey);
             AddFixedWindowPolicy(options, RateLimitPolicies.RepoMutations, limits.RepoMutationsPerMinute, TimeSpan.FromMinutes(1), UserOrIpKey);
             AddFixedWindowPolicy(options, RateLimitPolicies.Anonymous, limits.AnonymousPerMinute, TimeSpan.FromMinutes(1), IpKey);
@@ -66,6 +74,9 @@ internal static class RateLimitingServiceCollectionExtensions
         Window = window,
         QueueLimit = 0,
     };
+
+    private static bool IsRefreshRequest(HttpContext context) =>
+        bool.TryParse(context.Request.Query["refresh"], out var refresh) && refresh;
 
     private static string UserOrIpKey(HttpContext context) =>
         context.User.FindFirstValue(DevPulseClaimTypes.UserId) is { } userId ? $"user:{userId}" : IpKey(context);

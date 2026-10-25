@@ -1,0 +1,14 @@
+{
+  "id": 4000001,
+  "node_id": "R_kgDOSolo0001",
+  "name": "solo",
+  "full_name": "octocat/solo",
+  "owner": { "login": "octocat", "id": 1 },
+  "private": false,
+  "html_url": "https://github.com/octocat/solo",
+  "description": "Not in the cached list",
+  "fork": false,
+  "pushed_at": "2026-10-01T10:00:00Z",
+  "default_branch": "trunk",
+  "open_issues_count": 1
+}
