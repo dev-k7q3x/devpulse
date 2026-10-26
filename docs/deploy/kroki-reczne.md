@@ -29,6 +29,11 @@ Sekrety (Client secret, klucze API, hasło certyfikatu) zapisuj w menedżerze ha
    | Enable Device Flow | nie zaznaczaj |
 3. **Register application** → skopiuj **Client ID** → **Generate a new client secret** → skopiuj sekret od razu (pokazywany raz).
 
+> Port ma znaczenie: aplikację otwieraj zawsze na **http://localhost:5173** (Vite), a callback ustaw na `:5173`.
+> Jeśli w OAuth App jest już `http://localhost:5080/signin-github` (stara instrukcja), też zadziała – API po zalogowaniu
+> przekieruje Cię na :5173 (sesja jest wspólna dla portów localhost) – ale wtedy logowanie zaczynaj z http://localhost:5080/api/auth/login,
+> bo GitHub wymaga zgodności `redirect_uri` z callbackiem. Najprościej: zmień callback na `:5173`.
+
 ### A2. Konfiguracja i uruchomienie (PowerShell, katalog repo)
 ```powershell
 git checkout main; git pull
@@ -46,6 +51,7 @@ cd frontend; npm ci; npm run dev               # terminal 2 – SPA na :5173
 ```
 
 ### A3. Sprawdź (wejdź na http://localhost:5173 – nie :5080)
+Błąd `redirect_uri is not associated with this application` na GitHubie = port w callbacku OAuth App różni się od portu, na którym zaczęło się logowanie (patrz uwaga w A1).
 - [ ] **A3.1** Przekierowanie na `/login` → **Zaloguj przez GitHub** → ekran zgody (profil, email, repozytoria) → **Authorize** → wracasz zalogowany (login i avatar w nagłówku, link **Hangfire**).
 - [ ] **A3.2** Pusty dashboard → wyszukaj i **dodaj 2–3 repo**. Karty pokazują „Pobieramy dane…”, po kilkunastu sekundach liczby PR/issue, status CI i datę aktywności.
 - [ ] **A3.3** **Ustawienia** → lista śledzonych repo; usuń jedno → znika z dashboardu.
