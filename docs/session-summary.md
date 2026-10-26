@@ -40,3 +40,10 @@
 - Weryfikacja po złożeniu (przed merge): backend 390/390 (+2 External pominięte), frontend 47/47, `dotnet format`, lint, type-check, prettier, build; jedyny konflikt – generowany `schema.d.ts` (regenerowany).
 - Merge: PR #4 (readiness timeout + `.editorconfig`), #5 (E3A), #6 (E3B), E3C (ten PR, z regenerowanym `schema.d.ts` i tą dokumentacją).
 - Deploy nadal odłożony (Railway wstrzymał rejestracje); `App__PublicBaseUrl` dopisane do instrukcji deployu.
+
+## 2026-10-26 · Etap 4 (E4) i E5B – równolegle w worktree, scalone do `main`
+
+- E4: `GET /api/dashboard` (jedno zapytanie, stany kart, ETag/304, bez GitHuba), dashboard i `RepoPicker` w UI. E5B: `/api/digests` (lista 30 dni, szczegóły, `/html` w sandbox), `RetentionJob`, strony historii.
+- Incydent: Docker Desktop znów padł w trakcie (E4 nie uruchomił 9 testów integracyjnych) – restart w sesji głównej, testy dokończone pod blokadą `.docker-lock`.
+- Po złożeniu: backend 427/427 (+2 External pominięte), frontend 85/85; konflikty tylko w `queryKeys.ts` (obie sekcje) i generowanym `schema.d.ts` (regenerowany, 14 endpointów).
+- Merge: PR #8 (E4), E5B (ten PR).

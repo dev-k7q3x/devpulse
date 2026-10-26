@@ -224,6 +224,166 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/digests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["DigestListItem"][];
+                        "application/json": components["schemas"]["DigestListItem"][];
+                        "text/json": components["schemas"]["DigestListItem"][];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/digests/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["DigestDetailResponse"];
+                        "application/json": components["schemas"]["DigestDetailResponse"];
+                        "text/json": components["schemas"]["DigestDetailResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/digests/{id}/html": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/html": string;
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/html": unknown;
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                        "text/html": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/repositories/available": {
         parameters: {
             query?: never;
@@ -840,6 +1000,43 @@ export interface components {
             /** Format: int32 */
             failingCiCount: number | string;
         };
+        DigestDetailResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date */
+            digestDate: string;
+            status: components["schemas"]["DigestStatus"];
+            subject: null | string;
+            /** Format: date-time */
+            sentAt: null | string;
+            aiUsed: boolean;
+            priorities: components["schemas"]["DigestPriorityItem"][];
+            timeZoneId: string;
+            recipientEmail: null | string;
+            /** Format: int32 */
+            attemptCount: number | string;
+            error: null | string;
+            hasHtml: boolean;
+        };
+        DigestListItem: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date */
+            digestDate: string;
+            status: components["schemas"]["DigestStatus"];
+            subject: null | string;
+            /** Format: date-time */
+            sentAt: null | string;
+            aiUsed: boolean;
+            priorities: components["schemas"]["DigestPriorityItem"][];
+        };
+        DigestPriorityItem: {
+            repoFullName: string;
+            text: string;
+            severity: components["schemas"]["PrioritySeverity"];
+        };
+        /** @enum {unknown} */
+        DigestStatus: "Pending" | "Sent" | "Failed";
         EmailChangeRequest: {
             email?: string;
         };
@@ -849,6 +1046,8 @@ export interface components {
         EmailConfirmResponse: {
             email: string;
         };
+        /** @enum {unknown} */
+        PrioritySeverity: "High" | "Medium" | "Low";
         ProblemDetails: {
             type?: null | string;
             title?: null | string;

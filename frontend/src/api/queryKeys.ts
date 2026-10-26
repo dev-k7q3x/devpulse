@@ -19,4 +19,9 @@ export const queryKeys = {
     available: (search: string, page: number) =>
       ['repositories', 'available', { search, page }] as const,
   },
+  digests: {
+    all: ['digests'] as const,
+    list: ['digests', 'list'] as const,
+    detail: (id: string) => ['digests', 'detail', id] as const,
+  },
 } as const
