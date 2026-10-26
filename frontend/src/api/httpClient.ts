@@ -10,13 +10,25 @@ export interface ProblemDetails {
 export class ProblemError extends Error {
   readonly status: number
   readonly problem: ProblemDetails
+  /** Nagłówek `Retry-After` (sekundy) przy 429 i 503 – do komunikatu „spróbuj za X”. */
+  readonly retryAfterSeconds: number | undefined
 
-  constructor(status: number, problem: ProblemDetails) {
+  constructor(
+    status: number,
+    problem: ProblemDetails,
+    retryAfterSeconds?: number,
+  ) {
     super(problem.title ?? `HTTP ${status}`)
     this.name = 'ProblemError'
     this.status = status
     this.problem = problem
+    this.retryAfterSeconds = retryAfterSeconds
   }
+}
+
+function readRetryAfter(response: Response): number | undefined {
+  const value = Number(response.headers.get('Retry-After'))
+  return Number.isFinite(value) && value > 0 ? value : undefined
 }
 
 const XSRF_COOKIE = 'XSRF-TOKEN'
@@ -65,7 +77,11 @@ export async function request<T>(
   })
 
   if (!response.ok) {
-    throw new ProblemError(response.status, await readProblem(response))
+    throw new ProblemError(
+      response.status,
+      await readProblem(response),
+      readRetryAfter(response),
+    )
   }
 
   // 204, 201/202 bez treści albo odpowiedź nie-JSON – brak danych do sparsowania.

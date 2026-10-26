@@ -48,6 +48,19 @@ function mockApi(handler: Handler = () => undefined, initial = settings) {
     if (path === '/api/auth/me') return Promise.resolve(jsonResponse(user))
     if (method === 'GET' && path === '/api/settings')
       return Promise.resolve(jsonResponse(initial))
+    // Wybór repozytoriów (E4) osadzony na stronie – pusta lista, żeby nie zgłaszał własnych błędów.
+    if (method === 'GET' && path === '/api/repositories')
+      return Promise.resolve(jsonResponse([]))
+    if (method === 'GET' && path.startsWith('/api/repositories/available'))
+      return Promise.resolve(
+        jsonResponse({
+          items: [],
+          page: 1,
+          pageSize: 20,
+          totalCount: 0,
+          fetchedAt: '2026-10-25T06:00:00Z',
+        }),
+      )
     return Promise.resolve(new Response(null, { status: 500 }))
   })
   return fetchMock

@@ -9,4 +9,14 @@ export const queryKeys = {
   settings: {
     current: ['settings'] as const,
   },
+  dashboard: {
+    current: ['dashboard'] as const,
+  },
+  repositories: {
+    /** Prefiks – unieważnia listę śledzonych i wszystkie strony `available`. */
+    all: ['repositories'] as const,
+    tracked: ['repositories', 'tracked'] as const,
+    available: (search: string, page: number) =>
+      ['repositories', 'available', { search, page }] as const,
+  },
 } as const
