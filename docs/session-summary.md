@@ -53,3 +53,12 @@
 - `DigestSchedulerJob` (co godzinę, 2 zapytania), `SendDigestJob` (Pending → snapshoty → compose → AI/fallback → render → SendGrid → Sent/Failed z kodem błędu), `DigestScheduler` (rejestracja w tle), `DigestPipelineOptions`; usunięty `LoggingEmailSender`.
 - Review: 2× REQUEST_CHANGES (utrata digestu po restarcie, możliwa podwójna wysyłka) → poprawione → APPROVE. Testy: 465/465 (+2 External pominięte).
 - Przerwa na limit API w trakcie – wznowione bez utraty pracy.
+
+## 2026-10-26 · Etap 6 – operacje i hardening (sekwencyjnie w sesji głównej, scalone do `main`)
+
+- `/hangfire` z polityką `Admin` (401/403/200), link w UI dla `isAdmin`; nagłówki bezpieczeństwa (CSP SPA, nosniff, Referrer-Policy), HSTS poza Development; destrukturyzacja Serilog bez danych wrażliwych; `XsrfToken` bez 500 przy http (wykryte w teście obrazu Production).
+- Testy: mapa polityk rate limitingu dla wszystkich 17 endpointów (nowy endpoint bez wpisu oblewa test), smoke test end-to-end na fake'ach (logowanie → repo → snapshot → dashboard → digest → historia).
+- Obraz Production: bundle, `/health/ready`, CSP na SPA, `/hangfire` 401, brak błędów w logach.
+- Review: `/devpulse-kit:devpulse-review` APPROVE (sugestie 1, 4, 5 wdrożone), `/security-review` – brak znalezisk o wysokiej pewności.
+- Dokumentacja: README, `docs/deploy/runbook.md`, **`docs/deploy/kroki-reczne.md` – jedna instrukcja wszystkich kroków ręcznych**.
+- Testy: backend 500/500 (+2 External pominięte), frontend 87/87.

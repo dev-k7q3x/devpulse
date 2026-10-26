@@ -38,6 +38,8 @@ frontend/src/
 - Daty z API to ISO 8601 UTC – formatowanie i strefy tylko przez helpery z `lib/`
 
 ## Bezpieczeństwo
+- CSP produkcji (`SecurityHeadersMiddleware`): `script-src 'self'; style-src 'self'` – żadnych skryptów ani tagów `<style>` inline;
+  biblioteka wstrzykująca style (CSS-in-JS) zostanie zablokowana – przed dodaniem takiej zależności zaktualizuj CSP
 - HTML digestu wyłącznie w `<iframe sandbox src="/api/digests/{id}/html">` – nigdy `dangerouslySetInnerHTML`
 - Strona /confirm-email wysyła POST z tokenem – sam GET linku nie może niczego potwierdzać
 - Linki zewnętrzne (PR-y, repo, checki): `target="_blank" rel="noopener noreferrer"`

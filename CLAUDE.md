@@ -30,7 +30,7 @@ Zaakceptowane plany (czytaj tylko plik dotyczący bieżącego obszaru):
 - Integracyjne: `dotnet test ./tests/DevPulse.Tests --filter Category=Integration`
   (wymagają Dockera – Testcontainers PostgreSQL)
 - Wszystkie: `dotnet test ./tests/DevPulse.Tests`
-- Run: `dotnet run --project ./src/DevPulse.Api`   (lokalnie także /openapi/v1.json; /hangfire od etapu 6)
+- Run: `dotnet run --project ./src/DevPulse.Api`   (lokalnie także /openapi/v1.json i /hangfire dla Admin:Logins)
   (wymaga user-secrets `Auth:GitHub:ClientId` i `Auth:GitHub:ClientSecret` – bez nich start kończy się błędem; docs/deploy/railway.md)
 - Nowa migracja: `dotnet ef migrations add [Nazwa] --project ./src/DevPulse.Infrastructure --startup-project ./src/DevPulse.Api`
   (preferuj `/devpulse-kit:new-migration [Nazwa]`)

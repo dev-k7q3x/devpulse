@@ -1,12 +1,15 @@
 using System.Text.Json.Serialization;
 using DevPulse.Api.Auth;
 using DevPulse.Api.Errors;
+using DevPulse.Api.Logging;
 using DevPulse.Api.OpenApi;
 using DevPulse.Api.RateLimiting;
+using DevPulse.Api.Security;
 using DevPulse.Api.Validation;
 using DevPulse.Application.Diagnostics;
 using DevPulse.Application.Errors;
 using DevPulse.Infrastructure.DependencyInjection;
+using Hangfire;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
@@ -16,7 +19,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSerilog((services, logger) => logger
     .ReadFrom.Configuration(builder.Configuration)
     .ReadFrom.Services(services)
-    .Enrich.FromLogContext());
+    .Enrich.FromLogContext()
+    .ApplyDevPulseDestructuring());
 
 builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
 {
@@ -62,6 +66,13 @@ builder.Services.AddInfrastructure(builder.Configuration);
 var app = builder.Build();
 
 app.UseForwardedHeaders();
+app.UseDevPulseSecurityHeaders();
+if (!app.Environment.IsDevelopment())
+{
+    // Po ForwardedHeaders: proxy Railway terminuje TLS, scheme https pochodzi z X-Forwarded-Proto.
+    app.UseHsts();
+}
+
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseSerilogRequestLogging();
@@ -81,6 +92,17 @@ app.UseAuthorization();
 app.UseRateLimiter();
 
 app.MapControllers();
+
+// Panel Hangfire tylko dla adminów (Admin:Logins), także na produkcji. Domyślny filtr Hangfire (tylko localhost)
+// zastępuje autoryzacja endpointu: niezalogowany → 401, zalogowany bez uprawnień → 403.
+app.MapHangfireDashboard(AuthServiceCollectionExtensions.HangfireDashboardPath, new DashboardOptions
+{
+    Authorization = [],
+    AppPath = "/",
+    DashboardTitle = "DevPulse – Hangfire",
+    DisplayStorageConnectionString = false,
+})
+    .RequireAuthorization(AuthorizationPolicies.Admin);
 
 // Liveness dla healthchecka Railway: żaden check zależności – awaria bazy nie restartuje kontenera.
 var livenessOptions = new HealthCheckOptions { Predicate = _ => false };

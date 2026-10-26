@@ -1,6 +1,6 @@
 # Deploy na Railway
 
-Instrukcja krok po kroku (klikanie w GitHub i Railway, weryfikacja): [`etap-2-kroki-recznie.md`](etap-2-kroki-recznie.md).
+Instrukcja krok po kroku (konta, klucze, hosting, weryfikacja): [`kroki-reczne.md`](kroki-reczne.md). Operacje: [`runbook.md`](runbook.md).
 
 Jeden serwis z `Dockerfile` (API + SPA + Hangfire) i Railway PostgreSQL. Konfiguracja buildu i deployu
 jest w repo: `railway.json` (builder Dockerfile, pre-deploy `./efbundle`, healthcheck `/health`).
@@ -35,7 +35,9 @@ DataProtection__CertificateBase64=<zawartość C:\Users\pawel\.devpulse\dataprot
 DataProtection__CertificatePassword=<zawartość C:\Users\pawel\.devpulse\dataprotection-password.txt>
 Admin__Logins__0=<twój login GitHub>
 App__PublicBaseUrl=https://<domena>
-# od E5A (digest): ANTHROPIC_API_KEY, SendGrid__ApiKey, SendGrid__FromEmail (zweryfikowana domena nadawcy)
+SendGrid__ApiKey=<klucz SendGrid (Mail Send)>
+SendGrid__FromEmail=<zweryfikowany adres nadawcy>
+ANTHROPIC_API_KEY=<klucz Anthropic>
 ```
 - Connection string musi być w formacie Npgsql – nie używaj `DATABASE_URL` (URI). Referencje `${{Postgres.…}}` zakładają, że serwis bazy nazywa się `Postgres`.
 - `PORT` ustawia Railway – nie dodawaj go.

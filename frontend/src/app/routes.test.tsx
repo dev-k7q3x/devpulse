@@ -99,6 +99,27 @@ describe('appRoutes', () => {
     ).toHaveAttribute('href', '/api/auth/login?returnUrl=%2Fdigests')
   })
 
+  it('shows Hangfire link only for admin', async () => {
+    signedInApi({ ...user, isAdmin: true })
+
+    renderRoutes(appRoutes, '/')
+
+    expect(
+      await screen.findByRole('link', { name: 'Hangfire' }),
+    ).toHaveAttribute('href', '/hangfire')
+  })
+
+  it('hides Hangfire link for regular user', async () => {
+    signedInApi(user)
+
+    renderRoutes(appRoutes, '/')
+
+    await screen.findByText('octocat')
+    expect(
+      screen.queryByRole('link', { name: 'Hangfire' }),
+    ).not.toBeInTheDocument()
+  })
+
   it('does not show re-login banner for healthy token', async () => {
     signedInApi(user)
 

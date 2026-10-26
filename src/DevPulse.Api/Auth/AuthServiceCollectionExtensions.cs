@@ -19,6 +19,7 @@ internal static class AuthServiceCollectionExtensions
 {
     public const string SessionCookieName = "devpulse_session";
     public const string LoginPagePath = "/login";
+    public const string HangfireDashboardPath = "/hangfire";
 
     public static IServiceCollection AddDevPulseAuthentication(
         this IServiceCollection services,
@@ -77,7 +78,11 @@ internal static class AuthServiceCollectionExtensions
             });
 
         services.AddAuthorizationBuilder()
-            .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
+            .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build())
+            .AddPolicy(AuthorizationPolicies.Admin, policy => policy
+                .RequireAuthenticatedUser()
+                .AddRequirements(new AdminRequirement()));
+        services.AddScoped<IAuthorizationHandler, AdminAuthorizationHandler>();
 
         services.AddAntiforgery(antiforgery =>
         {
@@ -132,10 +137,12 @@ internal static class AuthServiceCollectionExtensions
         return Task.CompletedTask;
     }
 
-    /// <summary>API odpowiada 401 ProblemDetails, nie 302 – SPA sama przechodzi na /login.</summary>
+    /// <summary>
+    /// API i panel <c>/hangfire</c> odpowiadają 401 ProblemDetails, nie 302 (plan 03 §0 i §6) – SPA sama przechodzi na /login.
+    /// </summary>
     private static Task OnRedirectToLoginAsync(RedirectContext<CookieAuthenticationOptions> context)
     {
-        if (!context.Request.Path.StartsWithSegments("/api"))
+        if (!context.Request.Path.StartsWithSegments("/api") && !context.Request.Path.StartsWithSegments(HangfireDashboardPath))
         {
             context.Response.Redirect(LoginPagePath);
             return Task.CompletedTask;
