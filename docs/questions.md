@@ -64,3 +64,14 @@ Pełne listy decyzji z uzasadnieniem: `docs/progress/E3A.md`, `E3B.md`, `E3C.md`
 22. **Readiness przy niedostępnej bazie** – `HangfireHealthCheck` czeka na storage najwyżej 5 s (wcześniej ~88 s). `.editorconfig` z `end_of_line = lf` po wprowadzeniu `.gitattributes`.
 
 **Dla E5A (z raportów ścieżek):** `SendDigestJob` traktuje `InvalidOperationException` z sendera (brak konfiguracji) jako błąd trwały, bez ponawiania; zapisuje stały kod błędu, nie `exception.Message`; pusty `SendGrid:FromEmail` do checklisty pre-deploy.
+
+## 2026-10-26 · Etap 4 (E4) i E5B – równolegle w worktree
+
+Szczegóły: `docs/progress/E4.md`, `docs/progress/E5B.md`.
+
+23. **ETag dashboardu szerszy niż w planie 03** – oprócz `max(refreshed_at, last_attempt_at)` i liczby repo uwzględnia id i daty zmian repo, liczbę kart przeterminowanych i userId; bez tego karta, która przeszła w `Stale`, zostawałaby w przeglądarce jako świeża. Liczony lekkim zapytaniem (`IDashboardService.GetVersionAsync`), więc 304 nie ładuje kart.
+24. **Odpytywanie dashboardu co 30 s tylko, gdy któraś karta jest `Loading`** (zaraz po dodaniu repo), poza tym 15 min – plan 04 oczekuje „Loading → po chwili Fresh”. Zapytania idą wyłącznie do bazy. Odstępstwo od reguły „15 min” w `.claude/rules/frontend.md` – przyjęte.
+25. **`ProblemError.retryAfterSeconds` w `httpClient`** – kontrakt wymaga komunikatu z `Retry-After` dla `rate-limited`/`github-rate-limited`.
+26. **Historia: okno 30 dni liczone w strefie użytkownika i obowiązuje też szczegóły i `/html`** (digest spoza okna → 404, jak cudzy).
+27. **`DigestErrorCodes` (E5B) – kontrakt dla E5A:** `digests.error` zawiera wyłącznie stały kod (`email-delivery-failed`, `email-not-configured`, `no-recipient`, `content-failed`); UI pokazuje tylko opis znanego kodu, każda inna treść → ogólny komunikat.
+28. **Komponenty UI:** `components/` (E4: `EmptyState`) jest wspólne; E5B ma lokalne elementy w `features/digests/` – do ujednolicenia przy okazji (bez wpływu na działanie).
