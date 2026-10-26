@@ -86,3 +86,12 @@ Szczegóły: `docs/progress/E5A.md`.
 32. **Ponowienia:** błędy przejściowe wysyłki (429/5xx, sieć, timeout) – maks. 3 retry Hangfire na tym samym wierszu z zapisaną treścią (AI wołane najwyżej raz); błędy trwałe (`email-not-configured`, `no-recipient`, `content-failed`, 4xx) – bez ponowień.
 33. **Usunięty `LoggingEmailSender`** (E3C) – po scaleniu E3B wygrywał `SendGridEmailSender`. Lokalnie bez konfiguracji SendGrid mail potwierdzający i digest kończą się błędem konfiguracji (widocznym), nie cichym logiem.
 34. **Przyjęte ryzyka:** padnięcie procesu w trakcie wywołania AI → odzyskanie woła AI ponownie (koszt ułamków centa, rzadkie); reguła „stare PR-y” widzi tylko top 10 PR ze snapshotu.
+
+## 2026-10-26 · Etap 6 – operacje i hardening
+
+35. **`/hangfire` niezalogowany → 401 ProblemDetails, nie 302 na `/login`** – zgodnie z planem 03 §6 (jak `/api`). Admin wchodzi linkiem z aplikacji, będąc zalogowanym.
+36. **Uprawnienie admina liczone z loginu w bazie przy każdym żądaniu do `/hangfire`** (cookie niesie tylko id DevPulse; login może się zmienić) – jedno zapytanie na żądanie panelu.
+37. **Ręczny test digestu przez `digest-scheduler` → *Trigger now*** po ustawieniu godziny wysyłki na bieżącą – bez endpointu „wyślij teraz” (decyzja architektoniczna o koszcie AI). Opisane w `docs/deploy/kroki-reczne.md` i runbooku.
+38. **CSP SPA:** `script-src 'self'; style-src 'self'` (build Vite bez kodu inline – sprawdzone), avatary z `avatars.githubusercontent.com`, `frame-src 'self'` dla podglądu digestu, `frame-ancestors 'none'`. Panel Hangfire bez CSP (skrypty inline). Ścieżka liczona na wejściu do middleware – Hangfire przenosi prefiks do `PathBase` (błąd wyłapany testem).
+39. **Smoke test end-to-end** na fake'ach (GitHub, AI, email) z jobami wywoływanymi wprost – bez serwera Hangfire w teście.
+40. **Instrukcja kroków ręcznych** scalona w jeden plik `docs/deploy/kroki-reczne.md` (stary `etap-2-kroki-recznie.md` wskazuje na niego). Certyfikat PFX został wygenerowany lokalnie po incydencie Railway i nigdy nie trafił na Railway – nie wymaga ponownej generacji.

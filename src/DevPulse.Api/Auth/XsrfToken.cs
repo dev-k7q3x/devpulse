@@ -18,14 +18,21 @@ internal static class XsrfToken
 
     public static void Issue(HttpContext httpContext, IAntiforgery antiforgery)
     {
+        // Ta sama polityka Secure co cookie antiforgery (Always poza Development).
+        var securePolicy = httpContext.RequestServices.GetRequiredService<IOptions<AntiforgeryOptions>>().Value.Cookie.SecurePolicy;
+
+        // Poza Development tylko HTTPS (za proxy – X-Forwarded-Proto). Żądanie po http (np. wprost na port kontenera)
+        // nie dostaje tokenu zamiast 500 z GetAndStoreTokens; jego mutacje i tak odrzuci walidacja antiforgery.
+        if (securePolicy == CookieSecurePolicy.Always && !httpContext.Request.IsHttps)
+        {
+            return;
+        }
+
         var tokens = antiforgery.GetAndStoreTokens(httpContext);
         if (tokens.RequestToken is null)
         {
             return;
         }
-
-        // Ta sama polityka Secure co cookie antiforgery (Always poza Development).
-        var securePolicy = httpContext.RequestServices.GetRequiredService<IOptions<AntiforgeryOptions>>().Value.Cookie.SecurePolicy;
 
         // Celowo bez HttpOnly – JavaScript SPA musi odczytać wartość.
         httpContext.Response.Cookies.Append(CookieName, tokens.RequestToken, new CookieOptions

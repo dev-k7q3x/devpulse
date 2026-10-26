@@ -20,6 +20,8 @@ export function AppLayout() {
           </NavLink>
           <NavLink to="/digests">Historia digestów</NavLink>
           <NavLink to="/settings">Ustawienia</NavLink>
+          {/* Panel serwera, nie trasa SPA – pełna nawigacja przeglądarki. */}
+          {user?.isAdmin && <a href="/hangfire">Hangfire</a>}
         </nav>
         {user && (
           <div className="app-user">
