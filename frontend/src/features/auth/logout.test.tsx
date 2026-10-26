@@ -18,6 +18,17 @@ const user = {
   isAdmin: false,
 }
 
+const emptyDashboard = {
+  summary: {
+    repositoryCount: 0,
+    totalOpenPrs: 0,
+    totalOpenIssues: 0,
+    failingCiCount: 0,
+  },
+  oldestRefreshAt: null,
+  repositories: [],
+}
+
 afterEach(() => {
   vi.unstubAllGlobals()
 })
@@ -30,7 +41,10 @@ describe('logout', () => {
         loggedOut = true
         return new Response(null, { status: 204 })
       }
-      return loggedOut ? unauthenticatedResponse() : jsonResponse(user)
+      if (loggedOut) return unauthenticatedResponse()
+      if (path === '/api/auth/me') return jsonResponse(user)
+      if (path === '/api/dashboard') return jsonResponse(emptyDashboard)
+      return new Response(null, { status: 500 })
     })
     const { router } = renderRoutes(appRoutes, '/')
 

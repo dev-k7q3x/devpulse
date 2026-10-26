@@ -90,3 +90,129 @@ body {
   margin: 4rem auto;
   padding: 0 1.5rem;
 }
+
+/* Etap 4 – dashboard i wybór repozytoriów */
+.muted {
+  color: var(--muted);
+}
+
+.tag {
+  margin-left: 0.5rem;
+  padding: 0 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.empty-state {
+  max-width: 48rem;
+  padding: 1.5rem;
+  border: 1px dashed var(--border);
+  border-radius: 0.5rem;
+}
+
+.repo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  gap: 1rem;
+}
+
+.repo-card {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+.repo-card--stale,
+.repo-card--error {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+}
+
+.repo-card__header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.repo-card__header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.repo-card__stats {
+  display: flex;
+  gap: 1.5rem;
+  margin: 0.75rem 0;
+}
+
+.repo-card__stats dt {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.repo-card__stats dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.notice {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.notice--error {
+  color: var(--accent);
+}
+
+.ci-badge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+}
+
+.ci-badge--success {
+  border-color: #2da44e;
+}
+
+.ci-badge--failure {
+  border-color: #cf222e;
+}
+
+.pull-request-list {
+  padding-left: 1.1rem;
+}
+
+.pull-request-list .muted {
+  display: block;
+  font-size: 0.8rem;
+}
+
+.repo-picker form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.repo-picker__list {
+  padding: 0;
+  list-style: none;
+}
+
+.repo-picker__list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.pagination {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 0.75rem;
+}

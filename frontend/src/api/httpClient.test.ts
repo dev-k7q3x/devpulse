@@ -106,6 +106,27 @@ describe('httpClient', () => {
     expect((error as ProblemError).problem.type).toBe('unauthenticated')
   })
 
+  it('exposes Retry-After seconds on rate-limited response', async () => {
+    fetchMock.mockResolvedValue(
+      new Response(
+        JSON.stringify({ type: 'github-rate-limited', status: 503 }),
+        {
+          status: 503,
+          headers: {
+            'Content-Type': 'application/problem+json',
+            'Retry-After': '91',
+          },
+        },
+      ),
+    )
+
+    const error = await httpClient
+      .get('/api/repositories/available')
+      .catch((e: unknown) => e)
+
+    expect((error as ProblemError).retryAfterSeconds).toBe(91)
+  })
+
   it('throws ProblemError without type when error body is not JSON', async () => {
     fetchMock.mockResolvedValue(
       new Response('Bad gateway', { status: 502, statusText: 'Bad Gateway' }),

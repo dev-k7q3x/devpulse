@@ -171,6 +171,59 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["DashboardResponse"];
+                        "application/json": components["schemas"]["DashboardResponse"];
+                        "text/json": components["schemas"]["DashboardResponse"];
+                    };
+                };
+                /** @description Not Modified */
+                304: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/problem+json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/repositories/available": {
         parameters: {
             query?: never;
@@ -755,6 +808,13 @@ export interface components {
             pushedAt: null | string;
             isTracked: boolean;
         };
+        CiInfo: {
+            status: components["schemas"]["CiStatus"];
+            commitSha: null | string;
+            checksUrl: null | string;
+        };
+        /** @enum {unknown} */
+        CiStatus: "None" | "Success" | "Failure" | "Pending";
         CurrentUserResponse: {
             /** Format: uuid */
             id: string;
@@ -763,6 +823,22 @@ export interface components {
             githubTokenValid: boolean;
             missingScopes: string[];
             isAdmin: boolean;
+        };
+        DashboardResponse: {
+            summary: components["schemas"]["DashboardSummary"];
+            /** Format: date-time */
+            oldestRefreshAt: null | string;
+            repositories: components["schemas"]["RepositoryCard"][];
+        };
+        DashboardSummary: {
+            /** Format: int32 */
+            repositoryCount: number | string;
+            /** Format: int32 */
+            totalOpenPrs: number | string;
+            /** Format: int32 */
+            totalOpenIssues: number | string;
+            /** Format: int32 */
+            failingCiCount: number | string;
         };
         EmailChangeRequest: {
             email?: string;
@@ -781,10 +857,41 @@ export interface components {
             detail?: null | string;
             instance?: null | string;
         };
+        PullRequestItem: {
+            /** Format: int32 */
+            number: number | string;
+            title: string;
+            url: string;
+            author: null | string;
+            /** Format: date-time */
+            createdAt: string;
+            isDraft: boolean;
+        };
         RepositoryAddRequest: {
             /** Format: int64 */
             githubRepoId?: number | string;
         };
+        RepositoryCard: {
+            /** Format: uuid */
+            id: string;
+            fullName: string;
+            htmlUrl: string;
+            isPrivate: boolean;
+            state: components["schemas"]["RepositoryCardState"];
+            /** Format: int32 */
+            openPrCount: null | number | string;
+            /** Format: int32 */
+            openIssueCount: null | number | string;
+            openPullRequests: components["schemas"]["PullRequestItem"][];
+            ci: components["schemas"]["CiInfo"];
+            /** Format: date-time */
+            lastActivityAt: null | string;
+            /** Format: date-time */
+            refreshedAt: null | string;
+            lastError: null | string;
+        };
+        /** @enum {unknown} */
+        RepositoryCardState: "Loading" | "Fresh" | "Stale" | "Error";
         SettingsResponse: {
             email: null | string;
             emailConfirmed: boolean;

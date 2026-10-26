@@ -1,3 +1,4 @@
+import { RepoPicker } from '@/features/repositories/RepoPicker'
 import { formatDateTime } from '@/lib/dateTime'
 import { EmailSection } from './EmailSection'
 import { ScheduleForm } from './ScheduleForm'
@@ -24,6 +25,10 @@ export function SettingsPage() {
           <EmailSection settings={settings} />
         </>
       )}
+      <section aria-labelledby="repositories-heading">
+        <h2 id="repositories-heading">Repozytoria</h2>
+        <RepoPicker />
+      </section>
     </>
   )
 }

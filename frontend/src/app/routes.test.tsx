@@ -18,6 +18,26 @@ const user: CurrentUser = {
   isAdmin: false,
 }
 
+const emptyDashboard = {
+  summary: {
+    repositoryCount: 0,
+    totalOpenPrs: 0,
+    totalOpenIssues: 0,
+    failingCiCount: 0,
+  },
+  oldestRefreshAt: null,
+  repositories: [],
+}
+
+/** Zalogowany użytkownik `me`; dashboard pusty, reszta API (ustawienia, repo) odpowiada 500 – testy patrzą na układ. */
+function signedInApi(me: CurrentUser) {
+  return mockFetch((_method, path) => {
+    if (path === '/api/auth/me') return jsonResponse(me)
+    if (path === '/api/dashboard') return jsonResponse(emptyDashboard)
+    return new Response(null, { status: 500 })
+  })
+}
+
 afterEach(() => {
   vi.unstubAllGlobals()
 })
@@ -30,7 +50,7 @@ describe('appRoutes', () => {
   ])(
     'renders %s page inside app layout for signed-in user',
     async (path, heading) => {
-      mockFetch(() => jsonResponse(user))
+      signedInApi(user)
 
       renderRoutes(appRoutes, path)
 
@@ -60,7 +80,7 @@ describe('appRoutes', () => {
   })
 
   it('shows re-login banner when GitHub token is invalid', async () => {
-    mockFetch(() => jsonResponse({ ...user, githubTokenValid: false }))
+    signedInApi({ ...user, githubTokenValid: false })
 
     renderRoutes(appRoutes, '/')
 
@@ -70,7 +90,7 @@ describe('appRoutes', () => {
   })
 
   it('shows re-login banner when scopes are missing', async () => {
-    mockFetch(() => jsonResponse({ ...user, missingScopes: ['repo'] }))
+    signedInApi({ ...user, missingScopes: ['repo'] })
 
     renderRoutes(appRoutes, '/digests')
 
@@ -80,7 +100,7 @@ describe('appRoutes', () => {
   })
 
   it('does not show re-login banner for healthy token', async () => {
-    mockFetch(() => jsonResponse(user))
+    signedInApi(user)
 
     renderRoutes(appRoutes, '/')
 
