@@ -43,6 +43,21 @@ public static class NextDigestCalculator
         throw new InvalidOperationException("Nie znaleziono terminu wysyłki w ciągu tygodnia.");
     }
 
+    /// <summary>
+    /// Czy digest należy się teraz: termin wysyłki (ta sama reguła co <see cref="Next"/>, łącznie ze zmianą czasu)
+    /// wypadł w oknie <c>(nowUtc − window, nowUtc]</c>. DigestSchedulerJob uruchamiany co godzinę z oknem 1 h
+    /// trafia każdy termin dokładnie raz – godzina powtórzona jesienią nie daje drugiego digestu.
+    /// </summary>
+    /// <returns>Lokalna data digestu albo <c>null</c>, gdy termin nie wypada w oknie.</returns>
+    public static DateOnly? DueLocalDate(DateTimeOffset nowUtc, int sendHour, TimeZoneInfo timeZone, TimeSpan window)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(window, TimeSpan.Zero);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(window, TimeSpan.FromDays(1));
+
+        var scheduled = Next(nowUtc - window, sendHour, timeZone);
+        return scheduled <= nowUtc ? LocalDate(scheduled, timeZone) : null;
+    }
+
     /// <summary>Data lokalna (dzień digestu) dla momentu UTC.</summary>
     public static DateOnly LocalDate(DateTimeOffset utc, TimeZoneInfo timeZone) =>
         DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(utc, timeZone).DateTime);

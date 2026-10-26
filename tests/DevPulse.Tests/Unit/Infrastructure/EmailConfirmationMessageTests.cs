@@ -1,9 +1,6 @@
 using DevPulse.Infrastructure.Email;
 using DevPulse.Infrastructure.Jobs;
 using FluentAssertions;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Hosting.Internal;
-using Microsoft.Extensions.Logging;
 
 namespace DevPulse.Tests.Unit.Infrastructure;
 
@@ -58,61 +55,5 @@ public class EmailConfirmationMessageTests
 
         // Assert
         act.Should().Throw<InvalidOperationException>().WithMessage("*App__PublicBaseUrl*");
-    }
-
-    [Theory]
-    [InlineData("jan.kowalski@example.com", "j***@example.com")]
-    [InlineData("bez-malpy", "***")]
-    public void Should_MaskRecipient_When_FakeSenderLogs(string address, string expected)
-    {
-        // Act
-        var masked = LoggingEmailSender.MaskRecipient(address);
-
-        // Assert
-        masked.Should().Be(expected);
-    }
-
-    [Fact]
-    public async Task Should_NotLogBody_When_FakeSenderUsed()
-    {
-        // Arrange – treść maila zawiera link z tokenem
-        var logger = new CapturingLogger();
-        var sender = new LoggingEmailSender(logger, Environment(Environments.Development));
-
-        // Act
-        var messageId = await sender.SendAsync(EmailConfirmationMessage.Create("new@example.com", Link), CancellationToken.None);
-
-        // Assert
-        messageId.Should().BeNull();
-        logger.Messages.Should().ContainSingle()
-            .Which.Should().Contain(EmailConfirmationMessage.Subject).And.Contain("n***@example.com").And.NotContain("abc_DEF-123");
-    }
-
-    [Fact]
-    public async Task Should_Throw_When_FakeSenderUsedInProduction()
-    {
-        // Arrange – bez SendGrid job ma pójść w retry, a nie udawać udaną wysyłkę
-        var sender = new LoggingEmailSender(new CapturingLogger(), Environment(Environments.Production));
-
-        // Act
-        var act = () => sender.SendAsync(EmailConfirmationMessage.Create("new@example.com", Link), CancellationToken.None);
-
-        // Assert
-        await act.Should().ThrowAsync<InvalidOperationException>();
-    }
-
-    private static HostingEnvironment Environment(string name) => new() { EnvironmentName = name };
-
-    private sealed class CapturingLogger : ILogger<LoggingEmailSender>
-    {
-        public List<string> Messages { get; } = [];
-
-        public IDisposable? BeginScope<TState>(TState state)
-            where TState : notnull => null;
-
-        public bool IsEnabled(LogLevel logLevel) => true;
-
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) =>
-            Messages.Add(formatter(state, exception));
     }
 }

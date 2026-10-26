@@ -2,6 +2,7 @@ using DevPulse.Application.Digests;
 using DevPulse.Application.Interfaces;
 using DevPulse.Infrastructure.Ai;
 using DevPulse.Infrastructure.Email;
+using DevPulse.Infrastructure.Jobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -30,7 +31,6 @@ internal static class DigestModule
             provider.GetRequiredService<TimeProvider>(),
             provider.GetRequiredService<ILogger<AnthropicPrioritizer>>()));
 
-        // Zwykłe Add, nie TryAdd: prawdziwy sender wygrywa z fake'iem z SettingsModule (E3C rejestruje go przez TryAdd).
         services.AddOptions<SendGridOptions>().Bind(configuration.GetSection(SendGridOptions.SectionName));
         services.AddSingleton<IEmailSender>(provider =>
         {
@@ -39,6 +39,12 @@ internal static class DigestModule
             httpClient.Timeout = options.Value.Timeout;
             return new SendGridEmailSender(httpClient, options, provider.GetRequiredService<ILogger<SendGridEmailSender>>());
         });
+
+        // M9: godzinowy scheduler (recurring rejestrowany w tle) i wysyłka digestu jednego użytkownika.
+        services.AddOptions<DigestPipelineOptions>().Bind(configuration.GetSection(DigestPipelineOptions.SectionName));
+        services.AddTransient<DigestSchedulerJob>();
+        services.AddTransient<SendDigestJob>();
+        services.AddHostedService<DigestScheduler>();
 
         return services;
     }

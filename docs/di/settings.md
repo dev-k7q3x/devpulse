@@ -7,7 +7,7 @@
 | `IOptions<AppOptions>` ← sekcja `App` | – | `PublicBaseUrl` – adres SPA do linków w mailach. |
 | `ISettingsService` → `Services/SettingsService` | Scoped | `GET/PUT /api/settings`, zmiana/anulowanie/potwierdzenie emaila. |
 | `SendEmailConfirmationJob` | Scoped | Job Hangfire (enqueue z `SettingsService`). Aktywator Hangfire tworzy scope per job. |
-| `IEmailSender` → `Email/LoggingEmailSender` | Singleton, **TryAdd** | Atrapa do czasu scalenia E3B. `SendGridEmailSender` rejestrowany zwykłym `Add` w `DigestModule` wygrywa (ostatnia rejestracja). Po scaleniu E3B można usunąć `LoggingEmailSender`. |
+| `IEmailSender` | – | Rejestruje `DigestModule` (`SendGridEmailSender`). Atrapa `LoggingEmailSender` usunięta w E5A. |
 
 Brak recurring jobów – mail potwierdzający jest jednorazowym `Enqueue`.
 

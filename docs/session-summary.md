@@ -47,3 +47,9 @@
 - Incydent: Docker Desktop znów padł w trakcie (E4 nie uruchomił 9 testów integracyjnych) – restart w sesji głównej, testy dokończone pod blokadą `.docker-lock`.
 - Po złożeniu: backend 427/427 (+2 External pominięte), frontend 85/85; konflikty tylko w `queryKeys.ts` (obie sekcje) i generowanym `schema.d.ts` (regenerowany, 14 endpointów).
 - Merge: PR #8 (E4), E5B (ten PR).
+
+## 2026-10-26 · E5A – pipeline digestu (worktree, scalone do `main`)
+
+- `DigestSchedulerJob` (co godzinę, 2 zapytania), `SendDigestJob` (Pending → snapshoty → compose → AI/fallback → render → SendGrid → Sent/Failed z kodem błędu), `DigestScheduler` (rejestracja w tle), `DigestPipelineOptions`; usunięty `LoggingEmailSender`.
+- Review: 2× REQUEST_CHANGES (utrata digestu po restarcie, możliwa podwójna wysyłka) → poprawione → APPROVE. Testy: 465/465 (+2 External pominięte).
+- Przerwa na limit API w trakcie – wznowione bez utraty pracy.
