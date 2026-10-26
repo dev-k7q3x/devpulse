@@ -116,7 +116,28 @@ app.MapHealthChecks("/health/ready", readinessOptions).AllowAnonymous();
 // Fallbacki są anonimowe: SPA (w tym /login) musi się załadować bez sesji, a 404 niczego nie zdradza.
 app.MapFallback("/api/{**path}", () => Results.Problem(statusCode: StatusCodes.Status404NotFound, type: ProblemTypes.NotFound))
     .AllowAnonymous();
-app.MapFallbackToFile("index.html").AllowAnonymous();
+
+// Brakujący plik statyczny (np. /favicon.ico) to 404 – bez tego trafiałby pod FallbackPolicy i przekierowanie na /login.
+app.MapFallback("{*path:file}", () => Results.Problem(statusCode: StatusCodes.Status404NotFound, type: ProblemTypes.NotFound))
+    .AllowAnonymous();
+if (app.Environment.IsDevelopment() && !app.Environment.WebRootFileProvider.GetFileInfo("index.html").Exists)
+{
+    // Lokalnie SPA serwuje Vite (App:PublicBaseUrl, domyślnie :5173), a API nie ma buildu frontendu. Strony otwarte
+    // na porcie API (np. powrót z /signin-github, gdy callback OAuth wskazuje :5080) przekierowujemy do Vite –
+    // cookie sesji jest wspólne dla wszystkich portów localhost.
+    var spaDevServer = (app.Configuration["App:PublicBaseUrl"] ?? "http://localhost:5173").TrimEnd('/');
+    // Ten sam wzorzec co MapFallbackToFile: tylko ścieżki stron, brakujący plik (np. /favicon.ico) zostaje przy 404.
+    app.MapFallback("{*path:nonfile}", context =>
+        {
+            context.Response.Redirect($"{spaDevServer}{context.Request.Path}{context.Request.QueryString}");
+            return Task.CompletedTask;
+        })
+        .AllowAnonymous();
+}
+else
+{
+    app.MapFallbackToFile("index.html").AllowAnonymous();
+}
 
 app.Run();
 

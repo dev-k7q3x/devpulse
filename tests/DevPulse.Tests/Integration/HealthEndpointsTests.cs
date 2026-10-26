@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
 using DevPulse.Application.Errors;
+using DevPulse.Tests.Integration.TestSupport;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -70,8 +71,8 @@ public class HealthEndpointsTests(DevPulseApiFactory factory)
     [Fact]
     public async Task Should_ReturnContractSlugInsteadOfRfcLink_When_FrameworkGeneratesProblem()
     {
-        // Arrange – ścieżka pliku omija SPA fallback, więc 404 generuje UseStatusCodePages
-        using var client = factory.CreateClient();
+        // Arrange – brakujący plik: anonimowe 404 ProblemDetails, nie przekierowanie na /login (bez podążania za 302)
+        using var client = factory.CreateAnonymousClient();
 
         // Act
         var response = await client.GetAsync("/missing-file.js");
