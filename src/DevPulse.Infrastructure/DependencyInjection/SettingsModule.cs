@@ -1,11 +1,9 @@
 using DevPulse.Application.Interfaces;
 using DevPulse.Application.Options;
-using DevPulse.Infrastructure.Email;
 using DevPulse.Infrastructure.Jobs;
 using DevPulse.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace DevPulse.Infrastructure.DependencyInjection;
 
@@ -17,9 +15,6 @@ internal static class SettingsModule
         services.AddOptions<AppOptions>().Bind(configuration.GetSection(AppOptions.SectionName));
         services.AddScoped<ISettingsService, SettingsService>();
         services.AddScoped<SendEmailConfirmationJob>();
-
-        // Atrapa do czasu scalenia E3B – SendGridEmailSender (zwykłe Add w DigestModule) ma pierwszeństwo.
-        services.TryAddSingleton<IEmailSender, LoggingEmailSender>();
 
         return services;
     }

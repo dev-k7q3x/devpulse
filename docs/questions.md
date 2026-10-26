@@ -75,3 +75,14 @@ Szczegóły: `docs/progress/E4.md`, `docs/progress/E5B.md`.
 26. **Historia: okno 30 dni liczone w strefie użytkownika i obowiązuje też szczegóły i `/html`** (digest spoza okna → 404, jak cudzy).
 27. **`DigestErrorCodes` (E5B) – kontrakt dla E5A:** `digests.error` zawiera wyłącznie stały kod (`email-delivery-failed`, `email-not-configured`, `no-recipient`, `content-failed`); UI pokazuje tylko opis znanego kodu, każda inna treść → ogólny komunikat.
 28. **Komponenty UI:** `components/` (E4: `EmptyState`) jest wspólne; E5B ma lokalne elementy w `features/digests/` – do ujednolicenia przy okazji (bez wpływu na działanie).
+
+## 2026-10-26 · E5A – pipeline digestu
+
+Szczegóły: `docs/progress/E5A.md`.
+
+29. **Termin wysyłki przez `NextDigestCalculator.DueLocalDate`** (ta sama reguła zmiany czasu co w E3C): digest należny, gdy termin wypadł w ostatniej godzinie; godzina powtórzona jesienią → jeden digest, nieistniejąca wiosną → tuż po luce. Uruchomienie spóźnione o ponad godzinę pomija dany dzień zamiast wysyłać o nieoczekiwanej porze.
+30. **Użytkownicy z `token_invalid` są pomijani** przez scheduler (CLAUDE.md: joby pomijają użytkownika).
+31. **Idempotencja i odzyskiwanie bez migracji:** insert `Pending` + UNIQUE (user_id, digest_date); próba `Pending` starsza niż 20 min (mniej niż 30 min invisibility Hangfire) jest przejmowana przez scheduler z ostatniej doby; przejęcie ustawia `created_at = now` i czyści `error` (czyta je tylko retencja).
+32. **Ponowienia:** błędy przejściowe wysyłki (429/5xx, sieć, timeout) – maks. 3 retry Hangfire na tym samym wierszu z zapisaną treścią (AI wołane najwyżej raz); błędy trwałe (`email-not-configured`, `no-recipient`, `content-failed`, 4xx) – bez ponowień.
+33. **Usunięty `LoggingEmailSender`** (E3C) – po scaleniu E3B wygrywał `SendGridEmailSender`. Lokalnie bez konfiguracji SendGrid mail potwierdzający i digest kończą się błędem konfiguracji (widocznym), nie cichym logiem.
+34. **Przyjęte ryzyka:** padnięcie procesu w trakcie wywołania AI → odzyskanie woła AI ponownie (koszt ułamków centa, rzadkie); reguła „stare PR-y” widzi tylko top 10 PR ze snapshotu.

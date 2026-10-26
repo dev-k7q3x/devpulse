@@ -10,7 +10,15 @@ Wszystko w `Infrastructure/DependencyInjection/DigestModule.cs` (`AddDigest`, wo
 | `IOptions<AnthropicOptions>` ← sekcja `Anthropic` + `ApiKey` z `ANTHROPIC_API_KEY` | – | Klucz tylko ze zmiennej środowiskowej / user-secrets pod tą nazwą. |
 | `IAiPrioritizer` → `Infrastructure/Ai/AnthropicPrioritizer` | Singleton | Własny `HttpClient` (`SocketsHttpHandler`, `PooledConnectionLifetime` 15 min). Timeout przez `TimeProvider` (domyślnie 20 s). Wymaga `TimeProvider` z Api. |
 | `IOptions<SendGridOptions>` ← sekcja `SendGrid` | – | `ApiKey` tylko z env/user-secrets (`SendGrid__ApiKey`). |
-| `IEmailSender` → `Infrastructure/Email/SendGridEmailSender` | Singleton | Zwykłe `Add` – wygrywa z fake'iem rejestrowanym przez E3C (`TryAdd` w `SettingsModule`). Po scaleniu E3C fake można usunąć. |
+| `IEmailSender` → `Infrastructure/Email/SendGridEmailSender` | Singleton | Jedyna rejestracja `IEmailSender` (atrapa `LoggingEmailSender` z E3C usunięta w E5A). |
+
+## E5A – pipeline digestu
+| Rejestracja | Czas życia | Uwagi |
+|---|---|---|
+| `IOptions<DigestPipelineOptions>` ← sekcja `DigestPipeline` | – | `SchedulerWindow` (1 h), `StalePendingAfter` (20 min – poniżej `InvisibilityTimeout` Hangfire 30 min), `AbandonedRecoveryWindow` (1 doba); wartości domyślne w kodzie, sekcja opcjonalna. |
+| `DigestSchedulerJob` | Transient | Recurring `digest-scheduler`, cron `0 * * * *`, bez ponowień; ponownie enqueue'uje porzucone `Pending`. |
+| `SendDigestJob` | Transient | Enqueue'owany przez scheduler; `[AutomaticRetry(Attempts = 3)]` – ponowienia tylko przy przejściowych błędach wysyłki. Korzysta z `SnapshotRefreshJob` (GitHubModule). |
+| `DigestScheduler` | HostedService | Rejestruje recurring job w tle (ponawia co 30 s, aplikacja wstaje bez bazy). |
 
 ## Konfiguracja (appsettings.json)
 ```json
