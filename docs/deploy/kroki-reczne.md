@@ -6,7 +6,7 @@ konta zewnętrzne, klucze, hosting i sprawdzenie na żywo. Rób części **w tej
 | Część | Co | Czas | Wymaga |
 |---|---|---|---|
 | A | Lokalnie: logowanie, repozytoria, dashboard | 15 min | konto GitHub |
-| B | SendGrid i Anthropic (maile i priorytety AI) | 20 min + weryfikacja nadawcy | konta SendGrid / Anthropic |
+| B | SendGrid (maile); Anthropic opcjonalnie (priorytety AI) | 20 min + weryfikacja nadawcy | konto SendGrid; Anthropic – tylko jeśli chcesz priorytety AI |
 | C | Lokalnie: zmiana emaila, digest, historia | 15 min | A + B |
 | D | Hosting (Railway) i zmienne | 30 min | konto Railway (rejestracje mogą być nadal wstrzymane) |
 | E | Weryfikacja produkcji (MVP 1 + MVP 2) | 20 min + następny dzień | D |
@@ -60,17 +60,23 @@ Błąd `redirect_uri is not associated with this application` na GitHubie = port
 
 ---
 
-## B. SendGrid i Anthropic
+## B. SendGrid i (opcjonalnie) Anthropic
 
 ### B1. SendGrid (wysyłka maili)
-1. https://signup.sendgrid.com → konto (plan Free wystarcza: 100 maili/dzień).
+1. https://signup.sendgrid.com → konto (plan Free wystarcza: 100 maili/dzień). SendGrid należy do Twilio – konto i panel są pod tą marką.
+   Jeśli kreator po rejestracji prosi o domenę (*Send emails from your domain*), a nie masz własnej – pomiń ten krok
+   (*Skip* / *I'll do this later*); na pytanie o *brand the link* odpowiedz **No**.
 2. **Nadawca** – jedna z opcji:
-   - **Single Sender Verification** (szybko, bez domeny): *Settings → Sender Authentication → Verify a Single Sender* → podaj swój adres → kliknij link w mailu. Maile mogą częściej trafiać do spamu.
+   - **Single Sender Verification** (szybko, bez domeny – wystarczy do testów): *Settings → Sender Authentication → Verify a Single Sender* → podaj swój adres → kliknij link w mailu. Maile mogą częściej trafiać do spamu, a adres z darmowej skrzynki (np. Gmail) bywa odrzucany przez politykę DMARC – wtedy sprawdź *Activity* w SendGrid.
    - **Domain Authentication** (zalecane na produkcję, wymaga własnej domeny): *Settings → Sender Authentication → Authenticate Your Domain* → dodaj wskazane rekordy CNAME u rejestratora domeny → **Verify** (propagacja DNS: od minut do 48 h).
 3. *Settings → API Keys → Create API Key* → **Restricted Access** → tylko **Mail Send: Full Access** → skopiuj klucz (pokazywany raz).
 4. Adres nadawcy (`FromEmail`) musi być zweryfikowanym adresem albo adresem w zweryfikowanej domenie.
+5. **Wyłącz Click Tracking:** *Settings → Tracking → Click Tracking → Off*. Domyślnie SendGrid przepisuje linki w mailach na swoje
+   przekierowania – także link potwierdzający zmianę emaila z jednorazowym tokenem. Open Tracking możesz wyłączyć tak samo (aplikacja z niego nie korzysta).
 
-### B2. Anthropic (priorytety AI)
+### B2. (Opcjonalnie) Anthropic – priorytety AI
+**Możesz pominąć.** Bez klucza aplikacja nie wywołuje Anthropic i nic nie kosztuje: priorytety w digeście liczy fallback regułowy
+(czerwone CI → stare PR-y → brak aktywności), w historii źródło „regułowe”. Klucz można dodać w dowolnym momencie (B3 + restart API).
 1. https://console.anthropic.com → konto → **Billing** (doładowanie, np. 5 USD wystarcza na bardzo długo – digest kosztuje ułamki centa).
 2. Zalecane: **Limits → Spend limit** (np. 5 USD/mies.).
 3. **API Keys → Create Key** (np. `devpulse-dev`) → skopiuj. Na produkcję utwórz osobny klucz (`devpulse-prod`).
@@ -79,12 +85,13 @@ Błąd `redirect_uri is not associated with this application` na GitHubie = port
 ```powershell
 dotnet user-secrets set "SendGrid:ApiKey" "<klucz z B1>" --project ./src/DevPulse.Api
 dotnet user-secrets set "SendGrid:FromEmail" "<zweryfikowany adres nadawcy>" --project ./src/DevPulse.Api
+# tylko jeśli zrobiłeś B2:
 dotnet user-secrets set "ANTHROPIC_API_KEY" "<klucz z B2>" --project ./src/DevPulse.Api
 ```
-Zrestartuj API (terminal 1).
+Zrestartuj API (terminal 1). Bez klucza Anthropic w logu API pojawi się ostrzeżenie `Anthropic API key is not configured – digest uses rule-based priorities` – to oczekiwane.
 
 ### B4. (Opcjonalnie, płatne – ułamki centa) Test kontraktowy prawdziwych API
-Potwierdza, że Anthropic i SendGrid przyjmują dokładnie te zapytania, które wysyła aplikacja (SendGrid w trybie sandbox – mail nie wychodzi).
+Wymaga obu kluczy (SendGrid i Anthropic) – bez B2 pomiń. Potwierdza, że Anthropic i SendGrid przyjmują dokładnie te zapytania, które wysyła aplikacja (SendGrid w trybie sandbox – mail nie wychodzi).
 ```powershell
 dotnet user-secrets set "SendGrid:TestRecipient" "<Twój adres>" --project ./src/DevPulse.Api
 $env:DEVPULSE_RUN_EXTERNAL = "1"; dotnet test ./tests/DevPulse.Tests --filter Category=External; Remove-Item Env:DEVPULSE_RUN_EXTERNAL
@@ -98,8 +105,8 @@ $env:DEVPULSE_RUN_EXTERNAL = "1"; dotnet test ./tests/DevPulse.Tests --filter Ca
 - [ ] **C1** **Ustawienia → Email** → wpisz inny swój adres → **Zapisz** → mail „Potwierdź adres” w skrzynce (sprawdź spam) → link otwiera `/confirm-email` → **Potwierdź adres** → komunikat sukcesu, w ustawieniach nowy adres.
 - [ ] **C2** **Ustawienia → Harmonogram** → godzina wysyłki = **bieżąca godzina** (np. teraz 14:20 → 14), strefa `Europe/Warsaw`, digest włączony → **Zapisz**.
 - [ ] **C3** **Hangfire** → *Recurring jobs* → zaznacz `digest-scheduler` → **Trigger now** → po chwili w *Jobs → Succeeded* jest `SendDigestJob`.
-- [ ] **C4** Mail z digestem w skrzynce: podsumowanie repo + priorytety (źródło: AI).
-- [ ] **C5** **Historia digestów** → wpis z dzisiejszą datą, status „Wysłany”, AI → szczegóły → podgląd maila wygląda jak w skrzynce.
+- [ ] **C4** Mail z digestem w skrzynce: podsumowanie repo + priorytety (z kluczem Anthropic – AI, bez klucza – regułowe).
+- [ ] **C5** **Historia digestów** → wpis z dzisiejszą datą, status „Wysłany”, źródło AI albo regułowe → szczegóły → podgląd maila wygląda jak w skrzynce.
 - [ ] **C6** Ponowne **Trigger now** tego samego dnia **nie** wysyła drugiego maila (jeden digest dziennie).
 
 Jeśli mail nie przychodzi: *Hangfire → Failed jobs* i kolumna „błąd” w historii (`email-not-configured` = brak klucza/nadawcy, `email-delivery-failed` = SendGrid odrzucił – sprawdź *Activity* w SendGrid i weryfikację nadawcy).
@@ -134,7 +141,7 @@ Admin__Logins__0=<Twój login GitHub>
 App__PublicBaseUrl=https://<DOMENA>
 SendGrid__ApiKey=<klucz SendGrid>
 SendGrid__FromEmail=<zweryfikowany adres nadawcy>
-ANTHROPIC_API_KEY=<klucz devpulse-prod>
+ANTHROPIC_API_KEY=<klucz devpulse-prod – opcjonalnie; bez niego priorytety regułowe>
 ```
 - Pierwszą linię wklej dokładnie tak (referencje Railway do bazy). Nie dodawaj `PORT` ani `DATABASE_URL`.
 - Certyfikat jest w `C:\Users\pawel\.devpulse\`. Kopiowanie do schowka bez wyświetlania:

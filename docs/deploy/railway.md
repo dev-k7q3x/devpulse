@@ -37,7 +37,7 @@ Admin__Logins__0=<twój login GitHub>
 App__PublicBaseUrl=https://<domena>
 SendGrid__ApiKey=<klucz SendGrid (Mail Send)>
 SendGrid__FromEmail=<zweryfikowany adres nadawcy>
-ANTHROPIC_API_KEY=<klucz Anthropic>
+ANTHROPIC_API_KEY=<klucz Anthropic – opcjonalnie; bez niego digest używa priorytetów regułowych>
 ```
 - Connection string musi być w formacie Npgsql – nie używaj `DATABASE_URL` (URI). Referencje `${{Postgres.…}}` zakładają, że serwis bazy nazywa się `Postgres`.
 - `PORT` ustawia Railway – nie dodawaj go.
