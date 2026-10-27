@@ -58,6 +58,9 @@ Błąd `redirect_uri is not associated with this application` na GitHubie = port
 - [ ] **A3.4** **Hangfire** (link w nagłówku) → panel jobów; w *Recurring jobs* są `snapshot-refresh`, `digest-scheduler`, `digest-retention`.
 - [ ] **A3.5** **Wyloguj** → ekran logowania.
 
+`/api/auth/me` zwraca 500 po kilku sekundach = nie działa lokalna baza: uruchom Docker Desktop i `docker compose up -d`
+(warto włączyć *Start Docker Desktop when you sign in* w ustawieniach Dockera).
+
 ---
 
 ## B. SendGrid i (opcjonalnie) Anthropic
@@ -103,12 +106,16 @@ $env:DEVPULSE_RUN_EXTERNAL = "1"; dotnet test ./tests/DevPulse.Tests --filter Ca
 ## C. Lokalnie – zmiana emaila, digest, historia
 
 - [ ] **C1** **Ustawienia → Email** → wpisz inny swój adres → **Zapisz** → mail „Potwierdź adres” w skrzynce (sprawdź spam) → link otwiera `/confirm-email` → **Potwierdź adres** → komunikat sukcesu, w ustawieniach nowy adres.
-- [ ] **C2** **Ustawienia → Harmonogram** → godzina wysyłki = **bieżąca godzina** (np. teraz 14:20 → 14), strefa `Europe/Warsaw`, digest włączony → **Zapisz**.
+- [ ] **C2** Upewnij się, że śledzisz **co najmniej jedno repo** (dashboard pokazuje karty z liczbami) – bez repo digest nie jest wysyłany.
+  **Ustawienia → Harmonogram** → godzina wysyłki = **bieżąca godzina** (np. teraz 12:25 → 12; po pełnej godzinie ustaw nową), strefa `Europe/Warsaw`, digest włączony → **Zapisz**.
 - [ ] **C3** **Hangfire** → *Recurring jobs* → zaznacz `digest-scheduler` → **Trigger now** → po chwili w *Jobs → Succeeded* jest `SendDigestJob`.
+  Sam `DigestSchedulerJob` niczego nie wysyła – tylko kolejkuje `SendDigestJob` dla użytkowników, którym digest jest należny teraz.
+  Jego sukces bez `SendDigestJob` oznacza niespełniony warunek: godzina wysyłki ≠ bieżąca, brak śledzonych repo, niepotwierdzony email, wyłączony digest albo digest na dziś już wysłany.
 - [ ] **C4** Mail z digestem w skrzynce: podsumowanie repo + priorytety (z kluczem Anthropic – AI, bez klucza – regułowe).
 - [ ] **C5** **Historia digestów** → wpis z dzisiejszą datą, status „Wysłany”, źródło AI albo regułowe → szczegóły → podgląd maila wygląda jak w skrzynce.
 - [ ] **C6** Ponowne **Trigger now** tego samego dnia **nie** wysyła drugiego maila (jeden digest dziennie).
 
+Mail (potwierdzający i digest) z nadawcą Single Sender na Gmailu zwykle trafia do **spamu** – oznacz go „To nie spam” i dodaj nadawcę do kontaktów; na produkcji użyj Domain Authentication (B1).
 Jeśli mail nie przychodzi: *Hangfire → Failed jobs* i kolumna „błąd” w historii (`email-not-configured` = brak klucza/nadawcy, `email-delivery-failed` = SendGrid odrzucił – sprawdź *Activity* w SendGrid i weryfikację nadawcy).
 
 ---
