@@ -7,12 +7,22 @@
       "Bash(npm test *)"
     ],
     "ask": [
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(dotnet ef database update*)"
     ],
     "deny": [
       "Read(./.env)",
       "Read(./.env.*)",
-      "Bash(git push --force *)"
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/*.pfx)",
+      "Edit(**/appsettings.Production.json)",
+      "Write(**/appsettings.Production.json)",
+      "Bash(git push --force *)",
+      "Bash(git push -f*)",
+      "Bash(git push * --force*)",
+      "Bash(dotnet ef migrations remove*)",
+      "Bash(dotnet ef database drop*)"
     ]
   },
   "enabledPlugins": {
