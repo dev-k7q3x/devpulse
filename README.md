@@ -58,4 +58,5 @@ Po każdej zmianie DTO: uruchom API i `cd frontend; npm run gen:api` (regeneruje
 ## Deploy i operacje
 - Pierwsze uruchomienie produkcji krok po kroku: [`docs/deploy/kroki-reczne.md`](docs/deploy/kroki-reczne.md)
 - Konfiguracja i zmienne środowiskowe: [`docs/deploy/railway.md`](docs/deploy/railway.md)
+- Alternatywa bez Railway: [`docs/deploy/render.md`](docs/deploy/render.md) (`render.yaml`, plan Free)
 - Runbook (deploy, rollback, rotacja sekretów, incydenty): [`docs/deploy/runbook.md`](docs/deploy/runbook.md)

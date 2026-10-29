@@ -1,6 +1,7 @@
 # Deploy na Railway
 
 Instrukcja krok po kroku (konta, klucze, hosting, weryfikacja): [`kroki-reczne.md`](kroki-reczne.md). Operacje: [`runbook.md`](runbook.md).
+Bez konta na Railway (rejestracje wstrzymane od 22.10.2026): [`render.md`](render.md).
 
 Jeden serwis z `Dockerfile` (API + SPA + Hangfire) i Railway PostgreSQL. Konfiguracja buildu i deployu
 jest w repo: `railway.json` (builder Dockerfile, pre-deploy `./efbundle`, healthcheck `/health`).

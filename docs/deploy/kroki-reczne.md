@@ -8,7 +8,7 @@ konta zewnętrzne, klucze, hosting i sprawdzenie na żywo. Rób części **w tej
 | A | Lokalnie: logowanie, repozytoria, dashboard | 15 min | konto GitHub |
 | B | SendGrid (maile); Anthropic opcjonalnie (priorytety AI) | 20 min + weryfikacja nadawcy | konto SendGrid; Anthropic – tylko jeśli chcesz priorytety AI |
 | C | Lokalnie: zmiana emaila, digest, historia | 15 min | A + B |
-| D | Hosting (Railway) i zmienne | 30 min | konto Railway (rejestracje mogą być nadal wstrzymane) |
+| D | Hosting (Railway) i zmienne | 30 min | konto Railway albo Render ([`render.md`](render.md)) |
 | E | Weryfikacja produkcji (MVP 1 + MVP 2) | 20 min + następny dzień | D |
 | F | Porządki i zgłoszenie wyniku | 5 min | – |
 
@@ -122,10 +122,9 @@ Jeśli mail nie przychodzi: *Hangfire → Failed jobs* i kolumna „błąd” w 
 
 ## D. Hosting (Railway)
 
-> Stan na 2026-10-24: Railway wstrzymał rejestrację nowych kont po incydencie bezpieczeństwa (https://status.railway.com).
-> Jeśli rejestracja nadal nie działa – napisz mi; przygotuję wariant na innym hostingu (np. Render: Docker + zarządzany PostgreSQL,
-> zmiana dotyczy tylko pliku konfiguracji deployu i dokumentacji). Railway jest w wymaganiach jako „nienegocjowalny”,
-> więc zmiana to Twoja decyzja.
+> Railway od 22 października 2026 (po incydencie bezpieczeństwa z 21 października) wstrzymał rejestrację nowych kont
+> (https://status.railway.com). Bez konta na Railway użyj alternatywy na Render: [`render.md`](render.md) zastępuje część D,
+> a część E robisz tak samo (różnice są opisane w `render.md`, sekcja 4).
 
 ### D1. Projekt i baza
 1. https://railway.com → **Login with GitHub** → plan **Hobby**.

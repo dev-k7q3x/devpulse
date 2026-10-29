@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 # Jeden obraz: API + SPA (wwwroot) + serwer Hangfire + EF migration bundle (pre-deploy na Railway: ./efbundle).
-# Railway podaje port w zmiennej PORT.
+# Railway i Render podają port w zmiennej PORT. MIGRATE_ON_START=true uruchamia bundle przy starcie
+# (Render Free nie ma pre-deploy command – docs/deploy/render.md).
 
 FROM node:24-alpine AS frontend
 WORKDIR /src/frontend
@@ -37,4 +38,4 @@ COPY --from=backend /app/efbundle ./efbundle
 ENV ASPNETCORE_ENVIRONMENT=Production
 USER $APP_UID
 EXPOSE 8080
-ENTRYPOINT ["sh", "-c", "ASPNETCORE_HTTP_PORTS=${PORT:-8080} exec dotnet DevPulse.Api.dll"]
+ENTRYPOINT ["sh", "-c", "if [ \"$MIGRATE_ON_START\" = true ]; then ./efbundle || exit 1; fi; ASPNETCORE_HTTP_PORTS=${PORT:-8080} exec dotnet DevPulse.Api.dll"]
