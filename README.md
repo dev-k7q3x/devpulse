@@ -4,6 +4,10 @@ Dashboard kondycji repozytoriów GitHub i codzienny digest email z priorytetami 
 Jeden ekran z otwartymi PR-ami, issue, statusem CI i ostatnią aktywnością każdego repo, a o wybranej godzinie mail
 z podsumowaniem i maks. 5 priorytetami „co wymaga uwagi dziś” (Claude, z regułowym fallbackiem).
 
+Projekt powstał od zera z [Claude Code](https://code.claude.com/docs) w 16-częściowej serii
+[Claude Code na plukasiewicz.net](https://www.plukasiewicz.net/ClaudeCode/Introduction). Skille i hooki z serii są
+w osobnym repozytorium: [plukasiewicz/devpulse-tools](https://github.com/plukasiewicz/devpulse-tools).
+
 Zakres produktu: [`docs/requirements.md`](docs/requirements.md). Architektura i decyzje: [`claude-sessions/`](claude-sessions/)
 (plany 01–04) oraz [`docs/questions.md`](docs/questions.md).
 
@@ -60,3 +64,7 @@ Po każdej zmianie DTO: uruchom API i `cd frontend; npm run gen:api` (regeneruje
 - Konfiguracja i zmienne środowiskowe: [`docs/deploy/railway.md`](docs/deploy/railway.md)
 - Alternatywa bez Railway: [`docs/deploy/render.md`](docs/deploy/render.md) (`render.yaml`, plan Free)
 - Runbook (deploy, rollback, rotacja sekretów, incydenty): [`docs/deploy/runbook.md`](docs/deploy/runbook.md)
+
+## Licencja
+
+[MIT](LICENSE)
