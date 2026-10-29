@@ -1,0 +1,43 @@
+# Render Blueprint – alternatywa dla railway.json (instrukcja: docs/deploy/render.md).
+# Plan Free: usługa zasypia po 15 min bez ruchu, a darmowy PostgreSQL wygasa po 30 dniach – do sprawdzenia deployu, nie do pracy ciągłej.
+services:
+  - type: web
+    name: devpulse
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: main
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      # Free nie ma pre-deploy command – bundle uruchamia ENTRYPOINT (Dockerfile).
+      - key: MIGRATE_ON_START
+        value: "true"
+      # Format Npgsql (Host=…;Port=…), nie URI postgresql:// – wartość z panelu bazy, patrz docs/deploy/render.md.
+      - key: ConnectionStrings__Default
+        sync: false
+      - key: Auth__GitHub__ClientId
+        sync: false
+      - key: Auth__GitHub__ClientSecret
+        sync: false
+      - key: DataProtection__CertificateBase64
+        sync: false
+      - key: DataProtection__CertificatePassword
+        sync: false
+      - key: Admin__Logins__0
+        sync: false
+      - key: App__PublicBaseUrl
+        sync: false
+      - key: SendGrid__ApiKey
+        sync: false
+      - key: SendGrid__FromEmail
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+
+databases:
+  - name: devpulse-db
+    plan: free
+    region: frankfurt
+    databaseName: devpulse
+    user: devpulse
